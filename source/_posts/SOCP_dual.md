@@ -1,9 +1,12 @@
 ---
 title: 二阶锥规划示例及其对偶
-date: {{2025-4-14}}
+date: 2025-4-14
 author: GaoPan
-categories: [最优化]
-tags: [二阶锥优化, SOCP]
+categories: 
+- 最优化
+tags: 
+- 二阶锥优化
+- SOCP
 # 插件
 katex: true
 ---
