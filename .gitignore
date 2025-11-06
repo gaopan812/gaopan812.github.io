@@ -1,7 +1,0 @@
-public/
-node_modules/
-.deploy*/
-logs
-*.log
-.DS_Store
-Thumbs.db
