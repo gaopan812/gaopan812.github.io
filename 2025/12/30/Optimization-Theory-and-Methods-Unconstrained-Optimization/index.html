@@ -27,13 +27,14 @@
 <meta property="og:site_name" content="GP&#39;s Blog">
 <meta property="og:description" content="无约束优化   无约束优化问题  无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：min⁡xf(x)\min_{x} f(x) xmin​f(x) 其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/Optimization-Theory-and-Methods/global-minimization-case.png">
+<meta property="og:image" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/global-minimization-case.png">
+<meta property="og:image" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/steepest-descent-direction.png">
 <meta property="article:published_time" content="2025-12-30T09:25:49.000Z">
-<meta property="article:modified_time" content="2026-01-04T02:42:25.836Z">
+<meta property="article:modified_time" content="2026-01-04T02:57:41.829Z">
 <meta property="article:author" content="Pan Gao">
 <meta property="article:tag" content="最优化">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/Optimization-Theory-and-Methods/global-minimization-case.png">
+<meta name="twitter:image" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/global-minimization-case.png">
 
 
 <link rel="canonical" href="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/">
@@ -238,7 +239,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-01-04 10:42:25" itemprop="dateModified" datetime="2026-01-04T10:42:25+08:00">2026-01-04</time>
+      <time title="修改时间：2026-01-04 10:57:41" itemprop="dateModified" datetime="2026-01-04T10:57:41+08:00">2026-01-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -293,7 +294,7 @@
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∀</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathcal" style="margin-right:0.14736em;">N</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9331em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mpunct">,</span></span></span></span></span></p>
 <p>则称 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">x^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6887em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span> 为<strong>严格局部最小值点</strong>。</p>
 <p align="center">
-<img src="Optimization-Theory-and-Methods/global-minimization-case.png" width="400" alt="最小值点示例">
+<style>.eajfdtsbzxeb{}</style><img src="/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/global-minimization-case.png" class="eajfdtsbzxeb" alt="最小值点示例">
 </p>
 </li>
 </ul>
@@ -503,7 +504,9 @@
 </ul>
 <p class="katex-block "><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mi>k</mi></msub><mo>=</mo><mo>−</mo><mi mathvariant="normal">∇</mi><mi>f</mi><mo stretchy="false">(</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">p_k = -\nabla f(x_k).
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mord">∇</span><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">.</span></span></span></span></span></p>
-</li>
+<p align="center">
+<style>.fapzxqupopam{}</style><img src="/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/steepest-descent-direction.png" class="fapzxqupopam">  
+</p></li>
 </ul>
 
     </div>
@@ -538,11 +541,14 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/" rel="prev" title="最优化理论与方法-引言和预备知识">
-                  <i class="fa fa-angle-left"></i> 最优化理论与方法-引言和预备知识
+                <a href="/2025/12/11/Least-Squares/" rel="prev" title="最小二乘法的矩阵推导">
+                  <i class="fa fa-angle-left"></i> 最小二乘法的矩阵推导
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/" rel="next" title="最优化理论与方法-引言和预备知识">
+                  最优化理论与方法-引言和预备知识 <i class="fa fa-angle-right"></i>
+                </a>
             </div>
           </div>
     </footer>
