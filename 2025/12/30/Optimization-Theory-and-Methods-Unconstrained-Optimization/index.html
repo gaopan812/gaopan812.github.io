@@ -19,26 +19,26 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"gaopan812.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.28.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"maxinf.cn","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.28.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":true,"height":500},"language":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":true,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="无约束优化   无约束优化问题  无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数： min⁡xf(x) \min_{x} f(x) xmin​f(x) 其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微">
+    <meta name="description" content="Optimality conditions, gradient descent, and Newton&#39;s method for unconstrained optimization">
 <meta property="og:type" content="article">
 <meta property="og:title" content="最优化理论与方法-无约束优化">
-<meta property="og:url" content="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/index.html">
+<meta property="og:url" content="https://maxinf.cn/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/index.html">
 <meta property="og:site_name" content="MaxInf">
-<meta property="og:description" content="无约束优化   无约束优化问题  无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数： min⁡xf(x) \min_{x} f(x) xmin​f(x) 其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微">
+<meta property="og:description" content="Optimality conditions, gradient descent, and Newton&#39;s method for unconstrained optimization">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-12-30T09:25:49.000Z">
-<meta property="article:modified_time" content="2026-07-04T08:47:45.057Z">
+<meta property="article:modified_time" content="2026-07-04T14:11:10.951Z">
 <meta property="article:author" content="Pan Gao">
 <meta property="article:tag" content="最优化">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/">
+<link rel="canonical" href="https://maxinf.cn/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/","path":"2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/","title":"最优化理论与方法-无约束优化"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://maxinf.cn/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/","path":"2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/","title":"最优化理论与方法-无约束优化"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>最优化理论与方法-无约束优化 | MaxInf</title>
@@ -81,8 +81,27 @@
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/3.0.1/quicklink.umd.js" integrity="sha256-44BednzIpUeQJcY8qtLyarFu0UCCTbgmWOvaoehiFQQ=" crossorigin="anonymous" defer></script>
-  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/"}</script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://maxinf.cn/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/"}</script>
   <script src="/js/third-party/quicklink.js" defer></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VTC79FZFXD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VTC79FZFXD');
+</script>
+
+<!-- Baidu Analytics -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?71abd57da2509a73c7452ca988948603";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
 
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
@@ -183,7 +202,7 @@
     <img class="site-author-image" itemprop="image" alt="Pan Gao"
       src="/images/avatar.svg">
   <p class="site-author-name" itemprop="name">Pan Gao</p>
-  <div class="site-description" itemprop="description">Optimization, Algorithms, and Operations Research</div>
+  <div class="site-description" itemprop="description">MaxInf — A blog on optimization, algorithms, and operations research</div>
 </div>
 <div class="site-state-wrap animated">
   <nav class="site-state">
@@ -237,7 +256,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://gaopan812.github.io/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/">
+    <link itemprop="mainEntityOfPage" href="https://maxinf.cn/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.svg">
@@ -246,12 +265,12 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="MaxInf">
-      <meta itemprop="description" content="Optimization, Algorithms, and Operations Research">
+      <meta itemprop="description" content="MaxInf — A blog on optimization, algorithms, and operations research">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
       <meta itemprop="name" content="最优化理论与方法-无约束优化 | MaxInf">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="Optimality conditions, gradient descent, and Newton&#39;s method for unconstrained optimization">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -273,7 +292,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-07-04 16:47:45" itemprop="dateModified" datetime="2026-07-04T16:47:45+08:00">2026-07-04</time>
+      <time title="修改时间：2026-07-04 22:11:10" itemprop="dateModified" datetime="2026-07-04T22:11:10+08:00">2026-07-04</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -295,6 +314,7 @@
     </span>
 </div>
 
+            <div class="post-description">Optimality conditions, gradient descent, and Newton's method for unconstrained optimization</div>
         </div>
       </header>
 
@@ -340,7 +360,7 @@ f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∀</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathcal" style="margin-right:0.1474em;">N</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel"><span class="mord vbox"><span class="thinbox"><span class="rlap"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="inner"><span class="mord"><span class="mrel"></span></span></span><span class="fix"></span></span></span></span></span><span class="mspace nobreak"></span><span class="mrel">=</span></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9331em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mpunct">,</span></span></span></span></span></eqn></section><br>
 则称 <eq><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mo>∗</mo></msup></mrow><annotation encoding="application/x-tex">x^*</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6887em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6887em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span></span></span></span></eq> 为<strong>严格局部最小值点</strong>。</p>
 <p align="center">
-<style>.zhwqwdtefkpn{}</style>
+<style>.viiydcjuqcve{}</style>
 </p>
 </li>
 </ul>
@@ -562,14 +582,14 @@ p_k = -\nabla f(x_k).
 </li>
 </ul>
 <p align="center">
-<style>.pryegqazjhlr{}</style>  
+<style>.givgvhovmgeb{}</style>  
 </p>
 - 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
 <ul>
 <li>但在困难问题上，其收敛速度可能<strong>极其缓慢</strong>。</li>
 </ul>
 <p align="center">
-<style>.niwtnusrhdxf{}</style>
+<style>.rtpzpbtemjys{}</style>
 </p></li>
 </ul>
 
@@ -588,13 +608,13 @@ p_k = -\nabla f(x_k).
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/" rel="prev" title="最优化理论与方法-引言和预备知识">
-                  <i class="fa fa-angle-left"></i> 最优化理论与方法-引言和预备知识
+                <a href="/2025/12/11/Least-Squares/" rel="prev" title="最小二乘法的矩阵推导">
+                  <i class="fa fa-angle-left"></i> 最小二乘法的矩阵推导
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2026/01/13/Transportation-Research-Abbreviation/" rel="next" title="Transportation Research Part A-F 系列期刊ISO缩写">
-                  Transportation Research Part A-F 系列期刊ISO缩写 <i class="fa fa-angle-right"></i>
+                <a href="/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/" rel="next" title="最优化理论与方法-引言和预备知识">
+                  最优化理论与方法-引言和预备知识 <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
