@@ -1490,7 +1490,7 @@ pre code {
     transition: all 0.2s ease-in-out;
   }
   .links-of-author a::before {
-    background: #cfd7e2;
+    background: #71ff8f;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3283,48 +3283,4 @@ table {
 }
 .post-title a:hover {
   color: var(--link-hover-color);
-}
-.search-popup {
-  border-radius: 8px;
-}
-.search-popup .search-header {
-  border-radius: 8px 8px 0 0;
-}
-.search-input {
-  font-size: 1em;
-}
-.site-nav-right {
-  display: flex;
-  align-items: center;
-}
-.site-nav-right .toggle {
-  padding: 4px 8px;
-  cursor: pointer;
-}
-.main-menu .menu-item-search {
-  display: none;
-}
-.search-result-container {
-  padding: 0 20px;
-}
-.search-result-list {
-  margin: 0;
-  padding: 0;
-}
-.search-result-item {
-  border-bottom: 1px solid var(--border-color);
-  padding: 10px 0;
-  list-style: none;
-}
-.search-result-item:last-child {
-  border-bottom: none;
-}
-.search-result-title {
-  font-size: 1.1em;
-  font-weight: bold;
-}
-.search-result-content {
-  font-size: 0.9em;
-  color: var(--text-color);
-  margin-top: 4px;
 }
