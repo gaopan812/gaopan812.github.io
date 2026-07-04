@@ -277,47 +277,6 @@ si,k−1≤sik∀i∈V,∀k∈K∖{1}s_{i,k-1}\leq s_{ik}\quad\forall i\in V,\fo
       </tags>
   </entry>
   <entry>
-    <title>Gradient descent method</title>
-    <url>/2024/12/17/Gradient-descent-method/</url>
-    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
-
-算法介绍
-对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
-由函数的泰勒展开式可以得到：
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
-xk+1=xk−α∇f(xk)
-\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
-xk+1=xk−α∇f(xk)
-其中步长α\alphaα可以是固定步长也可以是动态步长。
-应用举例-LASSO问题求解
-本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
-min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
-minf(x)=21​∥Ax−b∥2+μ∥x∥1​
-注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
-lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
-当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
-min⁡f(x)=12∥Ax−b∥2+μLδ(x),
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
-minf(x)=21​∥Ax−b∥2+μLδ​(x),
-其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
-计算出光滑化的LASSO函数的梯度为：
-∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
-其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
-(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>梯度下降</tag>
-        <tag>无约束优化算法</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>带时间窗的电动车辆路径规划问题</title>
     <url>/2025/11/07/EVRPTW/</url>
     <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
@@ -410,6 +369,47 @@ mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V
       <tags>
         <tag>整数规划</tag>
         <tag>VRP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Gradient descent method</title>
+    <url>/2024/12/17/Gradient-descent-method/</url>
+    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
+
+算法介绍
+对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
+由函数的泰勒展开式可以得到：
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
+xk+1=xk−α∇f(xk)
+\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
+xk+1=xk−α∇f(xk)
+其中步长α\alphaα可以是固定步长也可以是动态步长。
+应用举例-LASSO问题求解
+本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
+min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
+minf(x)=21​∥Ax−b∥2+μ∥x∥1​
+注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
+lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
+当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
+min⁡f(x)=12∥Ax−b∥2+μLδ(x),
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
+minf(x)=21​∥Ax−b∥2+μLδ​(x),
+其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
+计算出光滑化的LASSO函数的梯度为：
+∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
+其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
+(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>梯度下降</tag>
+        <tag>无约束优化算法</tag>
       </tags>
   </entry>
   <entry>
@@ -535,6 +535,440 @@ from heapq import heappush, heappop# 初始化小顶堆heap = []# 元素入堆he
       </tags>
   </entry>
   <entry>
+    <title>二阶锥规划示例及其对偶</title>
+    <url>/2025/04/14/SOCP_dual/</url>
+    <content><![CDATA[二阶锥规划(SOCP)
+二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
+
+SOCP的原始和对偶问题
+SOCP的原始问题为：
+min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
+\end{array}
+mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
+其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
+对偶问题为：
+max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
+\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
+其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
+证明:
+令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
+min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
+&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
+&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
+\end{array}
+mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
+引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
+L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
+L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
+&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
+&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
+\end{aligned}
+L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
+原始问题的极小极大表示为：
+p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
+p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
+那么对偶问题的极大极小表示为：
+d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
+d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
+针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
+f−∑i=1mAi⊤−∑i=1muici=0,
+\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
+f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
+该问题才有下界。
+针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
+min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
+\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
+ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
+当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
+因此，SOCP的对偶问题等价于：
+max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
+\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
+&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
+令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
+示例
+基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
+min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
+&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
+\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
+其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
+不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
+通过对偶转换可以得到RC的可处理形式:
+min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
+Python实现求解
+CVXPY库可以直接求解SOCP。
+import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
+求解结果如下：
+status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>二阶锥优化</tag>
+        <tag>SOCP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+
+Transportation Research 系列 ISO 缩写一览表
+
+
+
+期刊全称
+ISO 标准缩写
+
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最优化理论与方法-无约束优化</title>
+    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
+    <content><![CDATA[无约束优化
+
+
+无约束优化问题
+
+无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
+min⁡xf(x)
+\min_{x} f(x)
+xmin​f(x)
+其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
+
+
+
+
+什么是一个解？
+
+
+全局最小值点：
+点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
+f(x∗)≤f(x),∀ x∈Rn.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
+f(x∗)≤f(x),∀x∈Rn.
+
+
+局部最小值点：
+大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
+点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
+f(x∗)≤f(x),∀ x∈N.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
+f(x∗)≤f(x),∀x∈N.
+
+
+严格局部最小值点：
+若存在邻域 N\mathcal{N}N，使得
+f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
+f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
+f(x∗)&lt;f(x),∀x∈N,x=x∗,
+则称 x∗x^*x∗ 为严格局部最小值点。
+
+.zhwqwdtefkpn{}
+
+
+
+
+
+识别一个局部最小
+
+
+当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
+
+
+特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
+
+梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
+Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
+
+
+
+一阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
+∇f(x∗)=0.
+\nabla f(x^*) = 0.
+∇f(x∗)=0.
+此条件称为一阶必要条件（first-order necessary condition）。
+若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
+因此，任何局部极小值点都必须是驻点。
+
+
+
+二阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
+
+梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
+Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
+
+
+
+
+这两个条件合称为二阶必要条件（second-order necessary conditions）。
+
+
+
+二阶充分条件
+
+假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
+
+
+此为二阶充分条件（second-order sufficient condition）。
+
+
+
+针对凸函数的情况
+
+若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
+进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
+
+
+
+
+
+
+算法总览
+对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
+
+
+随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
+它适用于组合优化问题以及规模较小的连续优化问题。
+常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
+
+
+确定型方法根据所利用函数信息的程度，进一步分为：
+
+直接搜索法（又称模式搜索法）
+梯度型方法
+
+
+
+直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
+它不需要计算梯度，适用于以下情形：
+
+变量维数较低，
+约束结构简单，
+目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
+典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
+
+
+
+
+
+两种策略
+对于梯度型数值方法(Gradient-based),一般通过两种策略，来
+由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
+
+线搜索
+
+在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
+沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
+min⁡α&gt;0f(xk+αpk).
+\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
+α&gt;0min​f(xk​+αpk​).
+虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
+
+
+信赖域
+
+在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
+然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
+因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
+min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
+\begin{aligned}
+\min_{p} \quad &amp; m_k(x_k + p) \\
+\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
+\end{aligned}
+pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
+其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
+模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
+mk(xk+p)=fk+pT∇fk+12pTBkp,
+m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
+mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
+其中：
+
+fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
+∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
+BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
+
+
+
+
+线搜索VS信赖域
+
+
+线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
+
+
+线搜索方法：
+
+首先选定一个搜索方向 pkp_kpk​；
+然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
+
+
+
+信赖域方法：
+
+首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
+然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
+
+
+
+
+
+
+
+线搜索——搜索方向
+
+
+线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
+pkT∇f(xk)&lt;0.
+p_k^T \nabla f(x_k) &lt; 0.
+pkT​∇f(xk​)&lt;0.
+
+
+这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
+f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
+f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
+f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
+即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
+
+
+一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
+通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
+
+
+在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
+
+
+搜索方向包括：
+
+最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
+牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
+拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
+
+
+
+
+
+最速下降方向
+
+
+最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
+
+
+考虑一阶泰勒展开：
+f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
+f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
+f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
+要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
+min⁡p  pT∇fksubject to∥p∥=1.
+\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
+pmin​pT∇fk​subject to∥p∥=1.
+
+
+该问题的解为：
+p=−∇fk∥∇fk∥,
+p = -\frac{\nabla f_k}{\|\nabla f_k\|},
+p=−∥∇fk​∥∇fk​​,
+即负梯度方向是单位长度下的最速下降方向。
+
+
+因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
+pk=−∇f(xk).
+p_k = -\nabla f(x_k).
+pk​=−∇f(xk​).
+
+
+
+.pryegqazjhlr{}  
+
+- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
+
+但在困难问题上，其收敛速度可能极其缓慢。
+
+
+.niwtnusrhdxf{}
+
+
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>最优化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>最优化理论与方法-引言和预备知识</title>
     <url>/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/</url>
     <content><![CDATA[引言和预备知识
@@ -557,7 +991,7 @@ Optimization
 
 优化的过程
 
-.rfowjmgewaiq{}
+.xneiqqwjybbt{}
 
 
 
@@ -1150,7 +1584,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.fetiyruiyqax{}
+.cokilrwggwar{}
 
 
 
@@ -1194,7 +1628,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.mpxhorqvqqzf{}
+.xvbbmvkunsej{}
 
 
 
@@ -1215,7 +1649,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.adjhucxiirni{}
+.oobgdqcijabt{}
 
 
 
@@ -1254,13 +1688,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .ajhqjjiuwcgu{}
+  .sygnndqlitev{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.lhicvuldpves{}
+.dzxzrquudxwp{}
 
 
 
@@ -1289,7 +1723,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.ibtxzdwqmxdn{}
+.gtetwbhoiumm{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1312,7 +1746,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.lbszyqnguxxc{}
+.msupdrnwxisd{}
 
 
 
@@ -1321,7 +1755,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.fzlccbeqfvbn{}
+.pmrikngrbpgl{}
 
 
 
@@ -1329,7 +1763,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.klmcjsngpggg{}
+.qwqlcosrsfyc{}
 
 
 
@@ -1511,7 +1945,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.bwnkyifbvwbu{}
+.teswdsfhvcsc{}
 
 
 
@@ -1538,7 +1972,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.oyqjzysondwa{}
+.ncnrggljlnnv{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1555,7 +1989,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.ittljkpypbkh{}
+.iycdichqkrea{}
 
 
 
@@ -1740,440 +2174,6 @@ f(x∗)&lt;f(x),∀x∈S 且 x=x∗,
 则称 x∗x^*x∗ 为 fff 在 SSS 上的严格全局最小值点（strict global minimizer）。
 
 
-
-
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>最优化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>二阶锥规划示例及其对偶</title>
-    <url>/2025/04/14/SOCP_dual/</url>
-    <content><![CDATA[二阶锥规划(SOCP)
-二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
-
-SOCP的原始和对偶问题
-SOCP的原始问题为：
-min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
-\end{array}
-mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
-其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
-对偶问题为：
-max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
-\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
-其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
-证明:
-令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
-min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
-&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
-&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
-\end{array}
-mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
-引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
-L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
-L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
-&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
-&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
-\end{aligned}
-L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
-原始问题的极小极大表示为：
-p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
-p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
-那么对偶问题的极大极小表示为：
-d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
-d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
-针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
-f−∑i=1mAi⊤−∑i=1muici=0,
-\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
-f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
-该问题才有下界。
-针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
-min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
-\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
-ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
-当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
-因此，SOCP的对偶问题等价于：
-max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
-\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
-&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
-令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
-示例
-基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
-min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
-&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
-\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
-其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
-不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
-通过对偶转换可以得到RC的可处理形式:
-min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
-Python实现求解
-CVXPY库可以直接求解SOCP。
-import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
-求解结果如下：
-status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>二阶锥优化</tag>
-        <tag>SOCP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
-
-Transportation Research 系列 ISO 缩写一览表
-
-
-
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
-
-
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
-
-
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
-
-
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
-
-
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
-
-
-
-
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
-
-
-]]></content>
-      <categories>
-        <category>论文写作</category>
-      </categories>
-      <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>最优化理论与方法-无约束优化</title>
-    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
-    <content><![CDATA[无约束优化
-
-
-无约束优化问题
-
-无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
-min⁡xf(x)
-\min_{x} f(x)
-xmin​f(x)
-其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
-
-
-
-
-什么是一个解？
-
-
-全局最小值点：
-点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
-f(x∗)≤f(x),∀ x∈Rn.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
-f(x∗)≤f(x),∀x∈Rn.
-
-
-局部最小值点：
-大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
-点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
-f(x∗)≤f(x),∀ x∈N.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
-f(x∗)≤f(x),∀x∈N.
-
-
-严格局部最小值点：
-若存在邻域 N\mathcal{N}N，使得
-f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
-f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
-f(x∗)&lt;f(x),∀x∈N,x=x∗,
-则称 x∗x^*x∗ 为严格局部最小值点。
-
-.rkbhjsfubfej{}
-
-
-
-
-
-识别一个局部最小
-
-
-当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
-
-
-特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
-
-梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
-Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
-
-
-
-一阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
-∇f(x∗)=0.
-\nabla f(x^*) = 0.
-∇f(x∗)=0.
-此条件称为一阶必要条件（first-order necessary condition）。
-若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
-因此，任何局部极小值点都必须是驻点。
-
-
-
-二阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
-
-梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
-Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
-
-
-
-
-这两个条件合称为二阶必要条件（second-order necessary conditions）。
-
-
-
-二阶充分条件
-
-假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
-
-
-此为二阶充分条件（second-order sufficient condition）。
-
-
-
-针对凸函数的情况
-
-若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
-进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
-
-
-
-
-
-
-算法总览
-对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
-
-
-随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
-它适用于组合优化问题以及规模较小的连续优化问题。
-常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
-
-
-确定型方法根据所利用函数信息的程度，进一步分为：
-
-直接搜索法（又称模式搜索法）
-梯度型方法
-
-
-
-直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
-它不需要计算梯度，适用于以下情形：
-
-变量维数较低，
-约束结构简单，
-目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
-典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
-
-
-
-
-
-两种策略
-对于梯度型数值方法(Gradient-based),一般通过两种策略，来
-由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
-
-线搜索
-
-在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
-沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
-min⁡α&gt;0f(xk+αpk).
-\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
-α&gt;0min​f(xk​+αpk​).
-虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
-
-
-信赖域
-
-在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
-然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
-因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
-min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
-\begin{aligned}
-\min_{p} \quad &amp; m_k(x_k + p) \\
-\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
-\end{aligned}
-pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
-其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
-模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
-mk(xk+p)=fk+pT∇fk+12pTBkp,
-m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
-mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
-其中：
-
-fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
-∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
-BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
-
-
-
-
-线搜索VS信赖域
-
-
-线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
-
-
-线搜索方法：
-
-首先选定一个搜索方向 pkp_kpk​；
-然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
-
-
-
-信赖域方法：
-
-首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
-然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
-
-
-
-
-
-
-
-线搜索——搜索方向
-
-
-线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
-pkT∇f(xk)&lt;0.
-p_k^T \nabla f(x_k) &lt; 0.
-pkT​∇f(xk​)&lt;0.
-
-
-这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
-f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
-f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
-f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
-即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
-
-
-一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
-通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
-
-
-在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
-
-
-搜索方向包括：
-
-最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
-牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
-拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
-
-
-
-
-
-最速下降方向
-
-
-最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
-
-
-考虑一阶泰勒展开：
-f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
-f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
-f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
-要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
-min⁡p  pT∇fksubject to∥p∥=1.
-\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
-pmin​pT∇fk​subject to∥p∥=1.
-
-
-该问题的解为：
-p=−∇fk∥∇fk∥,
-p = -\frac{\nabla f_k}{\|\nabla f_k\|},
-p=−∥∇fk​∥∇fk​​,
-即负梯度方向是单位长度下的最速下降方向。
-
-
-因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
-pk=−∇f(xk).
-p_k = -\nabla f(x_k).
-pk​=−∇f(xk​).
-
-
-
-.cuunysrmsscp{}  
-
-- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
-
-但在困难问题上，其收敛速度可能极其缓慢。
-
-
-.enewepjybtwi{}
 
 
 ]]></content>
