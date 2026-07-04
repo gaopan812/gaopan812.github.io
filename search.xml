@@ -372,6 +372,63 @@ mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V
       </tags>
   </entry>
   <entry>
+    <title>最小二乘法的矩阵推导</title>
+    <url>/2025/12/11/Least-Squares/</url>
+    <content><![CDATA[最小二乘法的矩阵形式推导
+
+问题设定
+
+给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
+y=Xβ+ε
+y = X\beta + \varepsilon
+y=Xβ+ε
+其中：
+y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
+X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
+β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
+ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
+我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+目标函数展开
+
+展开 RSS：
+RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
+\begin{aligned}
+\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
+&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
+&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
+\end{aligned}
+RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
+3. 求导并令梯度为零
+对 β\betaβ 求梯度（使用矩阵微分）：
+∂RSS∂β=−2X⊤y+2X⊤Xβ
+\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
+∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
+-2 X^\top y + 2 X^\top X \beta = 0
+\quad \Rightarrow \quad
+X^\top X \beta = X^\top y
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
+4. 解出最优参数
+若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
+β^=(X⊤X)−1X⊤y
+\hat{\beta} = (X^\top X)^{-1} X^\top y
+β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
+5. 总结
+最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>最小二乘法</tag>
+        <tag>矩阵</tag>
+        <tag>线性代数</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Gradient descent method</title>
     <url>/2024/12/17/Gradient-descent-method/</url>
     <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
@@ -478,63 +535,6 @@ from heapq import heappush, heappop# 初始化小顶堆heap = []# 元素入堆he
       </tags>
   </entry>
   <entry>
-    <title>最小二乘法的矩阵推导</title>
-    <url>/2025/12/11/Least-Squares/</url>
-    <content><![CDATA[最小二乘法的矩阵形式推导
-
-问题设定
-
-给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
-y=Xβ+ε
-y = X\beta + \varepsilon
-y=Xβ+ε
-其中：
-y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
-X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
-β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
-ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
-我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-目标函数展开
-
-展开 RSS：
-RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
-\begin{aligned}
-\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
-&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
-&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
-\end{aligned}
-RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
-3. 求导并令梯度为零
-对 β\betaβ 求梯度（使用矩阵微分）：
-∂RSS∂β=−2X⊤y+2X⊤Xβ
-\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
-∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
--2 X^\top y + 2 X^\top X \beta = 0
-\quad \Rightarrow \quad
-X^\top X \beta = X^\top y
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
-4. 解出最优参数
-若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
-β^=(X⊤X)−1X⊤y
-\hat{\beta} = (X^\top X)^{-1} X^\top y
-β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
-5. 总结
-最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
-]]></content>
-      <categories>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>最小二乘法</tag>
-        <tag>矩阵</tag>
-        <tag>线性代数</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>最优化理论与方法-引言和预备知识</title>
     <url>/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/</url>
     <content><![CDATA[引言和预备知识
@@ -557,7 +557,7 @@ Optimization
 
 优化的过程
 
-.ehwrguhozyoa{}
+.ltjtfqcdynot{}
 
 
 
@@ -1150,7 +1150,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.uwjqokhnnvib{}
+.ysjowwdxprak{}
 
 
 
@@ -1194,7 +1194,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.sknwunziremf{}
+.dkoiyccwhyso{}
 
 
 
@@ -1215,7 +1215,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.kiwtfsarkymh{}
+.pffjgiekiaim{}
 
 
 
@@ -1254,13 +1254,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .mnudrrnaxtkb{}
+  .kxsunqifhmsz{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.mklibicjqdds{}
+.dxuijgqphzzc{}
 
 
 
@@ -1289,7 +1289,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.vpmlmwhclboi{}
+.ctvmjodrghml{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1312,7 +1312,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.srlnwowegqch{}
+.gtdtsrqlhwpg{}
 
 
 
@@ -1321,7 +1321,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.tbotvplmybql{}
+.ygniuspohigu{}
 
 
 
@@ -1329,7 +1329,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.rxuuppusprkq{}
+.ylegmunlomql{}
 
 
 
@@ -1511,7 +1511,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.yrpfxvlozjxz{}
+.flldaxrrvkgc{}
 
 
 
@@ -1538,7 +1538,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.hrgyongifctv{}
+.kzmizhbuscdb{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1555,7 +1555,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.dshmblruqaow{}
+.tgweyphqputm{}
 
 
 
@@ -1845,6 +1845,64 @@ status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856
       </tags>
   </entry>
   <entry>
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+
+Transportation Research 系列 ISO 缩写一览表
+
+
+
+期刊全称
+ISO 标准缩写
+
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>最优化理论与方法-无约束优化</title>
     <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
     <content><![CDATA[无约束优化
@@ -1886,7 +1944,7 @@ f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
 f(x∗)&lt;f(x),∀x∈N,x=x∗,
 则称 x∗x^*x∗ 为严格局部最小值点。
 
-.viiydcjuqcve{}
+.kmljgbeepvoe{}
 
 
 
@@ -2108,14 +2166,14 @@ pk​=−∇f(xk​).
 
 
 
-.givgvhovmgeb{}  
+.tcpnfbnreuou{}  
 
 - 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
 
 但在困难问题上，其收敛速度可能极其缓慢。
 
 
-.rtpzpbtemjys{}
+.lcynpaxpskag{}
 
 
 ]]></content>
@@ -2347,64 +2405,6 @@ column generation的建模方式求解速度快，但求解结果不一定准确
       <tags>
         <tag>整数规划</tag>
         <tag>列生成</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
-
-Transportation Research 系列 ISO 缩写一览表
-
-
-
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
-
-
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
-
-
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
-
-
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
-
-
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
-
-
-
-
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
-
-
-]]></content>
-      <categories>
-        <category>论文写作</category>
-      </categories>
-      <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
       </tags>
   </entry>
   <entry>

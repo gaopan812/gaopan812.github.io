@@ -204,27 +204,6 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/tags/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://maxinf.cn/tags/%E6%97%A0%E7%BA%A6%E6%9D%9F%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://maxinf.cn/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://maxinf.cn/tags/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
@@ -240,6 +219,27 @@
   
   <url>
     <loc>https://maxinf.cn/tags/%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D/</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E6%97%A0%E7%BA%A6%E6%9D%9F%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95/</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -267,13 +267,6 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/tags/%E5%88%97%E7%94%9F%E6%88%90/</loc>
-    <lastmod>2026-07-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://maxinf.cn/tags/%E6%9C%9F%E5%88%8A%E7%BC%A9%E5%86%99/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
@@ -282,6 +275,13 @@
   
   <url>
     <loc>https://maxinf.cn/tags/ISO%E7%BC%A9%E5%86%99/</loc>
+    <lastmod>2026-07-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E5%88%97%E7%94%9F%E6%88%90/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -304,14 +304,14 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/categories/%E6%9C%80%E4%BC%98%E5%8C%96/</loc>
+    <loc>https://maxinf.cn/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://maxinf.cn/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</loc>
+    <loc>https://maxinf.cn/categories/%E6%9C%80%E4%BC%98%E5%8C%96/</loc>
     <lastmod>2026-07-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
