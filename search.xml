@@ -165,207 +165,6 @@ import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def _
       </tags>
   </entry>
   <entry>
-    <title>带时间窗的电动车辆路径规划问题</title>
-    <url>/2025/11/07/EVRPTW/</url>
-    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
-
-为了简化问题，我们做出了如下假设：
-
-只考虑一个充电站。
-时间窗为硬时间窗。
-电动车从配送中心出发时为满电量状态。
-电动车的充电速率是线性的， 每次充电都充满。
-
-为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
-
-电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
-电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
-电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
-
-
-符号
-给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
-问题建模
-
-决策变量：
-
-xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
-tit_iti​表示客户点iii的访问时间。
-uiu_iui​表示到达客户点iii的剩余容量。
-
-
-目标函数：最小化总行驶成本。
-min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
-约束条件：
-
-每个客户都必须被一辆车访问一次。
-∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
-车辆必须重配送中心出发，最后返回配送中心。
-∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
-对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
-∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
-车辆的容量约束。
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆的行驶时间约束。
-
-不存在充电过程的弧：
-包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
-ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
-存在充电过程的弧：
-当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
-ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
-其中gyigy_igyi​表示充满电的时间。
-
-
-行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
-
-
-以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
-Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
-
-
-以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
-yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
-
-
-
-
-
-
-完整的EVRPTW数学模型如下：
-min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{aligned}
-\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
-\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
-&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
-&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
-&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
-&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
-&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
-&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
-&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
-&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
-&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
-&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
-&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
-\end{aligned}
-mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Gradient descent method</title>
-    <url>/2024/12/17/Gradient-descent-method/</url>
-    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
-
-算法介绍
-对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
-由函数的泰勒展开式可以得到：
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
-xk+1=xk−α∇f(xk)
-\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
-xk+1=xk−α∇f(xk)
-其中步长α\alphaα可以是固定步长也可以是动态步长。
-应用举例-LASSO问题求解
-本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
-min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
-minf(x)=21​∥Ax−b∥2+μ∥x∥1​
-注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
-lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
-当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
-min⁡f(x)=12∥Ax−b∥2+μLδ(x),
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
-minf(x)=21​∥Ax−b∥2+μLδ​(x),
-其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
-计算出光滑化的LASSO函数的梯度为：
-∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
-其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
-(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>梯度下降</tag>
-        <tag>无约束优化算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据结构简介</title>
-    <url>/2025/11/07/IntroductiotoDataStructures/</url>
-    <content><![CDATA[数据结构是为实现对计算机数据有效使用的各种数据组织形式，服务于各类计算机操作。不同的数据结构具有各自对应的适用场景，旨在降低各种算法计算的时间与空间复杂度，达到最佳的任务执行效率。
-树:
-树是一种非线性数据结构，根据子节点数量可分为二叉树和多叉树，最顶层的节点称为根节点 root。以二叉树为例，每个节点包含三个成员变量：值 val、左子节点 left、右子节点 right。
-class TreeNode:    def __init__(self, x):        self.val = x      # 节点值        self.left = None  # 左子节点        self.right = None # 右子节点
-如下图所示，建立此二叉树需要实例化每个节点，并构建各节点的引用指向。
-# 初始化节点n1 = TreeNode(3) # 根节点 rootn2 = TreeNode(4)n3 = TreeNode(5)n4 = TreeNode(1)n5 = TreeNode(2)# 构建引用指向n1.left = n2n1.right = n3n2.left = n4n2.right = n5
-
-完全二叉树是一种特殊的二叉树，它的特点是：除了最后一层，其他层都是满的；最后一层的节点都靠左排列，中间不能有空位。
-举个例子：
-    1   / \  2   3 / \4   5
-
-前两层是满的；
-第三层（最后一层）有 2 个节点（4 和 5），而且紧挨着靠左，没问题。
-
-这也是完全二叉树（最后一层只有最左边一个节点）：
-    1   / \  2   3 /4
-但这不是完全二叉树：
-  1 / \2   3 \  5
-
-因为第 2 层的左孩子（2）右边有节点（5），但左边却空着（没有左孩子），违反了“靠左连续”的规则。
-
-为什么“完全二叉树”重要？
-比如下面这个树：
-    1   / \  2   3 / \4   5
-用数组存就是：[1, 2, 3, 4, 5]
-
-节点i的左孩子在位置 2*i + 1
-右孩子在 2*i + 2
-父节点在 (i-1)//2,  // 是Python中的整数除法（向下取整）。
-
-这正是堆（heap） 用数组实现的基础！
-堆:
-“堆”是一种特殊的树形数据结构，通常用完全二叉树来实现，主要用来快速找到最大值或最小值。
-简单理解：
-
-最大堆（大顶堆）：每个父节点的值都 大于等于 它的孩子节点。所以根节点是最大的。
-最小堆（小顶堆）：每个父节点的值都 小于等于 它的孩子节点。所以根节点是最小的。
-
-举个生活中的例子：
-想象一堆书，你总是想最快拿到最重的那本（或者最轻的那本）。堆就像一种整理方式，让你不用翻遍所有书，就能立刻拿到目标那本。
-堆的两个特点：
-
-形状规则：是一棵“完全二叉树”（从上到下、从左到右填满，没有空洞）。
-堆序性质：父节点和子节点之间有大小关系（最大堆 or 最小堆）。
-
-有什么用？
-
-找前 K 个最大/最小的数
-实现优先队列（比如医院急诊，病情最重的先处理）
-堆排序（一种排序算法）
-
-在 Python 中，可以用 heapq 模块来操作堆，默认是最小堆。
-from heapq import heappush, heappop# 初始化小顶堆heap = []# 元素入堆heappush(heap, 1)heappush(heap, 4)heappush(heap, 2)heappush(heap, 6)heappush(heap, 8)# 元素出堆（从小到大）heappop(heap) # -&gt; 1heappop(heap) # -&gt; 2heappop(heap) # -&gt; 4heappop(heap) # -&gt; 6heappop(heap) # -&gt; 8
-总结一句话：堆 = 能快速拿最大/最小值的“聪明堆叠”。
-]]></content>
-      <categories>
-        <category>数据结构与算法</category>
-      </categories>
-      <tags>
-        <tag>数据结构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>资源受限的基本最短路问题</title>
     <url>/2025/11/06/ESSPRC/</url>
     <content><![CDATA[在使用列生成算法求解带时间窗限制的车辆路径规划问题时，定价子问题是一个资源受限的基本最短路问题（Elementary Shortest Path Problem with Resource Constraints，ESSPRC）。在文献中[^1]证明了ESSPRC问题是强NPNPNP难的，因此针对大规模的问题，使用求解器求解速度较慢。
@@ -472,9 +271,267 @@ si,k−1≤sik∀i∈V,∀k∈K∖{1}s_{i,k-1}\leq s_{ik}\quad\forall i\in V,\fo
         <category>运筹优化</category>
       </categories>
       <tags>
-        <tag>整数规划</tag>
         <tag>动态规划</tag>
         <tag>标签算法</tag>
+        <tag>整数规划</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Gradient descent method</title>
+    <url>/2024/12/17/Gradient-descent-method/</url>
+    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
+
+算法介绍
+对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
+由函数的泰勒展开式可以得到：
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
+xk+1=xk−α∇f(xk)
+\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
+xk+1=xk−α∇f(xk)
+其中步长α\alphaα可以是固定步长也可以是动态步长。
+应用举例-LASSO问题求解
+本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
+min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
+minf(x)=21​∥Ax−b∥2+μ∥x∥1​
+注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
+lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
+当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
+min⁡f(x)=12∥Ax−b∥2+μLδ(x),
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
+minf(x)=21​∥Ax−b∥2+μLδ​(x),
+其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
+计算出光滑化的LASSO函数的梯度为：
+∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
+其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
+(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>梯度下降</tag>
+        <tag>无约束优化算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>带时间窗的电动车辆路径规划问题</title>
+    <url>/2025/11/07/EVRPTW/</url>
+    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
+
+为了简化问题，我们做出了如下假设：
+
+只考虑一个充电站。
+时间窗为硬时间窗。
+电动车从配送中心出发时为满电量状态。
+电动车的充电速率是线性的， 每次充电都充满。
+
+为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
+
+电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
+电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
+电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
+
+
+符号
+给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
+问题建模
+
+决策变量：
+
+xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
+tit_iti​表示客户点iii的访问时间。
+uiu_iui​表示到达客户点iii的剩余容量。
+
+
+目标函数：最小化总行驶成本。
+min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
+约束条件：
+
+每个客户都必须被一辆车访问一次。
+∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
+车辆必须重配送中心出发，最后返回配送中心。
+∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
+对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
+∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
+车辆的容量约束。
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆的行驶时间约束。
+
+不存在充电过程的弧：
+包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
+ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
+存在充电过程的弧：
+当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
+ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
+其中gyigy_igyi​表示充满电的时间。
+
+
+行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
+
+
+以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
+Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
+
+
+以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
+yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
+
+
+
+
+
+
+完整的EVRPTW数学模型如下：
+min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{aligned}
+\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
+\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
+&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
+&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
+&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
+&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
+&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
+&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
+&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
+&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
+&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
+&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
+&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
+\end{aligned}
+mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最小二乘法的矩阵推导</title>
+    <url>/2025/12/11/Least-Squares/</url>
+    <content><![CDATA[最小二乘法的矩阵形式推导
+
+问题设定
+
+给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
+y=Xβ+ε
+y = X\beta + \varepsilon
+y=Xβ+ε
+其中：
+y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
+X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
+β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
+ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
+我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+目标函数展开
+
+展开 RSS：
+RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
+\begin{aligned}
+\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
+&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
+&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
+\end{aligned}
+RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
+3. 求导并令梯度为零
+对 β\betaβ 求梯度（使用矩阵微分）：
+∂RSS∂β=−2X⊤y+2X⊤Xβ
+\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
+∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
+-2 X^\top y + 2 X^\top X \beta = 0
+\quad \Rightarrow \quad
+X^\top X \beta = X^\top y
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
+4. 解出最优参数
+若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
+β^=(X⊤X)−1X⊤y
+\hat{\beta} = (X^\top X)^{-1} X^\top y
+β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
+5. 总结
+最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>最小二乘法</tag>
+        <tag>矩阵</tag>
+        <tag>线性代数</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据结构简介</title>
+    <url>/2025/11/07/IntroductiotoDataStructures/</url>
+    <content><![CDATA[数据结构是为实现对计算机数据有效使用的各种数据组织形式，服务于各类计算机操作。不同的数据结构具有各自对应的适用场景，旨在降低各种算法计算的时间与空间复杂度，达到最佳的任务执行效率。
+树:
+树是一种非线性数据结构，根据子节点数量可分为二叉树和多叉树，最顶层的节点称为根节点 root。以二叉树为例，每个节点包含三个成员变量：值 val、左子节点 left、右子节点 right。
+class TreeNode:    def __init__(self, x):        self.val = x      # 节点值        self.left = None  # 左子节点        self.right = None # 右子节点
+如下图所示，建立此二叉树需要实例化每个节点，并构建各节点的引用指向。
+# 初始化节点n1 = TreeNode(3) # 根节点 rootn2 = TreeNode(4)n3 = TreeNode(5)n4 = TreeNode(1)n5 = TreeNode(2)# 构建引用指向n1.left = n2n1.right = n3n2.left = n4n2.right = n5
+
+完全二叉树是一种特殊的二叉树，它的特点是：除了最后一层，其他层都是满的；最后一层的节点都靠左排列，中间不能有空位。
+举个例子：
+    1   / \  2   3 / \4   5
+
+前两层是满的；
+第三层（最后一层）有 2 个节点（4 和 5），而且紧挨着靠左，没问题。
+
+这也是完全二叉树（最后一层只有最左边一个节点）：
+    1   / \  2   3 /4
+但这不是完全二叉树：
+  1 / \2   3 \  5
+
+因为第 2 层的左孩子（2）右边有节点（5），但左边却空着（没有左孩子），违反了“靠左连续”的规则。
+
+为什么“完全二叉树”重要？
+比如下面这个树：
+    1   / \  2   3 / \4   5
+用数组存就是：[1, 2, 3, 4, 5]
+
+节点i的左孩子在位置 2*i + 1
+右孩子在 2*i + 2
+父节点在 (i-1)//2,  // 是Python中的整数除法（向下取整）。
+
+这正是堆（heap） 用数组实现的基础！
+堆:
+“堆”是一种特殊的树形数据结构，通常用完全二叉树来实现，主要用来快速找到最大值或最小值。
+简单理解：
+
+最大堆（大顶堆）：每个父节点的值都 大于等于 它的孩子节点。所以根节点是最大的。
+最小堆（小顶堆）：每个父节点的值都 小于等于 它的孩子节点。所以根节点是最小的。
+
+举个生活中的例子：
+想象一堆书，你总是想最快拿到最重的那本（或者最轻的那本）。堆就像一种整理方式，让你不用翻遍所有书，就能立刻拿到目标那本。
+堆的两个特点：
+
+形状规则：是一棵“完全二叉树”（从上到下、从左到右填满，没有空洞）。
+堆序性质：父节点和子节点之间有大小关系（最大堆 or 最小堆）。
+
+有什么用？
+
+找前 K 个最大/最小的数
+实现优先队列（比如医院急诊，病情最重的先处理）
+堆排序（一种排序算法）
+
+在 Python 中，可以用 heapq 模块来操作堆，默认是最小堆。
+from heapq import heappush, heappop# 初始化小顶堆heap = []# 元素入堆heappush(heap, 1)heappush(heap, 4)heappush(heap, 2)heappush(heap, 6)heappush(heap, 8)# 元素出堆（从小到大）heappop(heap) # -&gt; 1heappop(heap) # -&gt; 2heappop(heap) # -&gt; 4heappop(heap) # -&gt; 6heappop(heap) # -&gt; 8
+总结一句话：堆 = 能快速拿最大/最小值的“聪明堆叠”。
+]]></content>
+      <categories>
+        <category>数据结构与算法</category>
+      </categories>
+      <tags>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -500,7 +557,7 @@ Optimization
 
 优化的过程
 
-.pypkglhtkyuh{}
+.rfowjmgewaiq{}
 
 
 
@@ -1093,7 +1150,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.ovgwrfvpklhl{}
+.fetiyruiyqax{}
 
 
 
@@ -1137,7 +1194,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.fqbmgcrvdcbv{}
+.mpxhorqvqqzf{}
 
 
 
@@ -1158,7 +1215,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.rytvkornawdt{}
+.adjhucxiirni{}
 
 
 
@@ -1197,13 +1254,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .heyplavpvfhb{}
+  .ajhqjjiuwcgu{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.oqpogmgemsnb{}
+.lhicvuldpves{}
 
 
 
@@ -1232,7 +1289,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.wubseewyvnvc{}
+.ibtxzdwqmxdn{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1255,7 +1312,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.upsshniszjft{}
+.lbszyqnguxxc{}
 
 
 
@@ -1264,7 +1321,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.iqnzmdrikebd{}
+.fzlccbeqfvbn{}
 
 
 
@@ -1272,7 +1329,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.jvokjlagzito{}
+.klmcjsngpggg{}
 
 
 
@@ -1454,7 +1511,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.cpuftjiehjue{}
+.bwnkyifbvwbu{}
 
 
 
@@ -1481,7 +1538,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.kbvrsfmgbnbv{}
+.oyqjzysondwa{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1498,7 +1555,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.bvmcdjhuydkw{}
+.ittljkpypbkh{}
 
 
 
@@ -1694,60 +1751,155 @@ f(x∗)&lt;f(x),∀x∈S 且 x=x∗,
       </tags>
   </entry>
   <entry>
-    <title>最小二乘法的矩阵推导</title>
-    <url>/2025/12/11/Least-Squares/</url>
-    <content><![CDATA[最小二乘法的矩阵形式推导
+    <title>二阶锥规划示例及其对偶</title>
+    <url>/2025/04/14/SOCP_dual/</url>
+    <content><![CDATA[二阶锥规划(SOCP)
+二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
 
-问题设定
-
-给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
-y=Xβ+ε
-y = X\beta + \varepsilon
-y=Xβ+ε
-其中：
-y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
-X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
-β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
-ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
-我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-目标函数展开
-
-展开 RSS：
-RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
-\begin{aligned}
-\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
-&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
-&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
+SOCP的原始和对偶问题
+SOCP的原始问题为：
+min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
+\end{array}
+mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
+其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
+对偶问题为：
+max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
+\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
+其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
+证明:
+令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
+min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
+&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
+&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
+\end{array}
+mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
+引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
+L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
+L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
+&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
+&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
 \end{aligned}
-RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
-3. 求导并令梯度为零
-对 β\betaβ 求梯度（使用矩阵微分）：
-∂RSS∂β=−2X⊤y+2X⊤Xβ
-\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
-∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
--2 X^\top y + 2 X^\top X \beta = 0
-\quad \Rightarrow \quad
-X^\top X \beta = X^\top y
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
-4. 解出最优参数
-若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
-β^=(X⊤X)−1X⊤y
-\hat{\beta} = (X^\top X)^{-1} X^\top y
-β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
-5. 总结
-最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
+L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
+原始问题的极小极大表示为：
+p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
+p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
+那么对偶问题的极大极小表示为：
+d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
+d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
+针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
+f−∑i=1mAi⊤−∑i=1muici=0,
+\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
+f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
+该问题才有下界。
+针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
+min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
+\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
+ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
+当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
+因此，SOCP的对偶问题等价于：
+max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
+\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
+&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
+令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
+示例
+基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
+min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
+&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
+\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
+其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
+不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
+通过对偶转换可以得到RC的可处理形式:
+min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
+Python实现求解
+CVXPY库可以直接求解SOCP。
+import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
+求解结果如下：
+status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
 ]]></content>
       <categories>
-        <category>机器学习</category>
+        <category>最优化</category>
       </categories>
       <tags>
-        <tag>最小二乘法</tag>
-        <tag>矩阵</tag>
-        <tag>线性代数</tag>
+        <tag>二阶锥优化</tag>
+        <tag>SOCP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+
+Transportation Research 系列 ISO 缩写一览表
+
+
+
+期刊全称
+ISO 标准缩写
+
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
       </tags>
   </entry>
   <entry>
@@ -1792,7 +1944,7 @@ f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
 f(x∗)&lt;f(x),∀x∈N,x=x∗,
 则称 x∗x^*x∗ 为严格局部最小值点。
 
-.eguinxjubder{}
+.rkbhjsfubfej{}
 
 
 
@@ -2014,14 +2166,14 @@ pk​=−∇f(xk​).
 
 
 
-.tgnyiupfkvuh{}  
+.cuunysrmsscp{}  
 
 - 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
 
 但在困难问题上，其收敛速度可能极其缓慢。
 
 
-.kwhqjnniloso{}
+.enewepjybtwi{}
 
 
 ]]></content>
@@ -2033,97 +2185,69 @@ pk​=−∇f(xk​).
       </tags>
   </entry>
   <entry>
-    <title>二阶锥规划示例及其对偶</title>
-    <url>/2025/04/14/SOCP_dual/</url>
-    <content><![CDATA[二阶锥规划(SOCP)
-二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
+    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
+    <url>/2025/11/07/VRPTW/</url>
+    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
 
-SOCP的原始和对偶问题
-SOCP的原始问题为：
-min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
-\end{array}
-mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
-其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
-对偶问题为：
-max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
-\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
-其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
-证明:
-令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
-min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
-&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
-&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
-\end{array}
-mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
-引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
-L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
-L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
-&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
-&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
-\end{aligned}
-L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
-原始问题的极小极大表示为：
-p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
-p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
-那么对偶问题的极大极小表示为：
-d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
-d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
-针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
-f−∑i=1mAi⊤−∑i=1muici=0,
-\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
-f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
-该问题才有下界。
-针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
-min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
-\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
-ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
-当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
-因此，SOCP的对偶问题等价于：
-max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
-\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
-&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
-令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
-示例
-基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
-min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
-&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
-\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
-其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
-不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
-通过对偶转换可以得到RC的可处理形式:
-min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
-Python实现求解
-CVXPY库可以直接求解SOCP。
-import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
-求解结果如下：
-status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
+问题数学描述
+假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
+模型定义
+决策变量
+
+xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
+ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
+ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
+
+目标函数
+最小化总的行驶成本：
+min⁡∑i,j∈Acijxij
+\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
+mini,j∈A∑​cij​xij​
+约束
+
+离开客户的车辆数目必须为1：
+∑j∈Vxij=1,∀i∈C
+\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
+j∈V∑​xij​=1,∀i∈C
+进出入车厂的数量必须相等, 车厂的流平衡约束：
+∑j∈Vxoj−∑i∈Vxid=0
+\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
+j∈V∑​xoj​−i∈V∑​xid​=0
+进出入客户的车的数量必须相等，客户点的流平衡约束：
+∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
+i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
+车辆的容量约束， (MTZ子回路消除)：
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆行驶时间约束：
+ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
+客户时间窗约束：
+ai≤ti≤bi,∀i∈V
+a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
+ai​≤ti​≤bi​,∀i∈V
+车辆容量约束：
+0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
+完整的VRPTW的数学优化模型如下：
+min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{align}
+\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
+\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
+          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
+          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
+          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
+          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
+          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
+\end{align}
+mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
+
 ]]></content>
       <categories>
-        <category>最优化</category>
+        <category>运筹优化</category>
       </categories>
       <tags>
-        <tag>二阶锥优化</tag>
-        <tag>SOCP</tag>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
       </tags>
   </entry>
   <entry>
@@ -2347,130 +2471,6 @@ column generation的建模方式求解速度快，但求解结果不一定准确
       <tags>
         <tag>整数规划</tag>
         <tag>列生成</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
-    <url>/2025/11/07/VRPTW/</url>
-    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
-
-问题数学描述
-假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
-模型定义
-决策变量
-
-xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
-ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
-ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
-
-目标函数
-最小化总的行驶成本：
-min⁡∑i,j∈Acijxij
-\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
-mini,j∈A∑​cij​xij​
-约束
-
-离开客户的车辆数目必须为1：
-∑j∈Vxij=1,∀i∈C
-\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
-j∈V∑​xij​=1,∀i∈C
-进出入车厂的数量必须相等, 车厂的流平衡约束：
-∑j∈Vxoj−∑i∈Vxid=0
-\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
-j∈V∑​xoj​−i∈V∑​xid​=0
-进出入客户的车的数量必须相等，客户点的流平衡约束：
-∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
-i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
-车辆的容量约束， (MTZ子回路消除)：
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆行驶时间约束：
-ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
-客户时间窗约束：
-ai≤ti≤bi,∀i∈V
-a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
-ai​≤ti​≤bi​,∀i∈V
-车辆容量约束：
-0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
-完整的VRPTW的数学优化模型如下：
-min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{align}
-\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
-\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
-          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
-          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
-          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
-          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
-          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
-\end{align}
-mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
-
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
-
-Transportation Research 系列 ISO 缩写一览表
-
-
-
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
-
-
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
-
-
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
-
-
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
-
-
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
-
-
-
-
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
-
-
-]]></content>
-      <categories>
-        <category>论文写作</category>
-      </categories>
-      <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
       </tags>
   </entry>
 </search>
