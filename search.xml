@@ -1,170 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Dijkstra算法</title>
-    <url>/2025/11/08/DijkstraAlgorithm/</url>
-    <content><![CDATA[最近在学习车辆调度问题，精确算法求解该问题时会涉及到求最短路径，所以先复习一下图中的最短路径算法——迪杰斯特拉算法。
-迪杰斯特拉算法的全称是Dijkstra算法，由荷兰计算机科学家艾兹赫尔·迪杰斯特拉（Edsger W. Dijkstra）于1959年提出。这是一种用于解决带权图中单源最短路径问题的经典算法，适用于所有边权为非负值的图。也就是说在给定的一张图中，一个顶点到另一个顶点的路径可能有多条，最短路径指的就是顶点之间“最短”的路径。
-算法步骤
-迪杰斯特拉算法的原理是：从源点出发，依次选择距离源点最短的顶点，然后更新该顶点到其他顶点的距离。
-
-创建一个距离数组dist[]，对于每个顶点v，初始化dist[v]为无穷大，但起始顶点s的距离为0
-创建一个集合S，用于存储已找到最短路径的顶点，初始为空
-循环重复以下步骤，直到所有顶点都被加入集合S：
-
-选择不在S中且距离值最小的顶点u
-将顶点u加入集合S
-更新顶点u的相邻顶点v的距离值：如果dist[u] + w(u,v)小于dist[v]，则更新dist[v]为dist[u] + w(u,v)
-
-
-当循环结束时，dist[]数组包含了从起始顶点s到所有其他顶点的最短距离
-
-时间复杂度分析
-算法包括了两部分：找最小距离顶点以及松弛边的操作。现在我们把两部分加起来：
-（1）找最小距离顶点的操作
-每轮都要扫描全部VVV个顶点来找最小值。
-总共进行VVV轮（每个顶点恰好被选中一次）。
-所以这部分总时间 =V×V=O(V2)V \times V = O(V^2)V×V=O(V2)
-（2）松弛边的操作
-对每个顶点 u，我们遍历它的所有邻接边。
-所有顶点的邻接边总数 =2E2E2E（无向图）或EEE（有向图）→ 统一视为O(E)O(E)O(E)
-所以松弛总时间 =O(E)O(E)O(E)
-合并两部分：
-总时间复杂度 =O(V2+E)O(V^2 + E)O(V2+E)
-但在最坏情况下（比如完全图），边数E=O(V2)E = O(V^2)E=O(V2)，所以O(V2+E)=O(V2)O(V^2 + E) = O(V^2)O(V2+E)=O(V2)
-更重要的是：即使图很稀疏（比如E=O(V)E = O(V)E=O(V)），找最小值的操作仍然是O(V2)O(V^2)O(V2)，这部分占主导！
-因此，朴素 Dijkstra 的时间复杂度被写作O(V2)O(V^2)O(V2)，因为它由“找最小值”这一步决定，与边数关系不大。
-举个例子
-假设图有V=5V = 5V=5个顶点：
-第1轮：扫描5个点找最小 → 4次比较
-第2轮：扫描剩下4个未访问点 → 3次
-…
-第5轮：扫描1个点 → 0次
-总比较次数 =4+3+2+1=V(V−1)2=O(V2)4 + 3 + 2  + 1 = \frac{V(V-1)}{2} = O(V^2)4+3+2+1=2V(V−1)​=O(V2)
-这就是O(V2)O(V^2)O(V2)的来源！
-优化版本
-如果用最小堆（优先队列）来维护未访问节点的距离，那么：
-取最小值：O(log⁡V)O(\log V)O(logV)
-插入/更新：每次O(log⁡V)O(\log V)O(logV)，最多EEE次
-总时间变成O((V+E)log⁡V)O((V + E) \log V)O((V+E)logV)，在稀疏图（E≈VE \approx VE≈V）中远优于O(V2)O(V^2)O(V2)。
-总结
-朴素 Dijkstra 是O(V2)O(V^2)O(V2)，因为每一步都要线性扫描所有顶点来找到当前距离最小的未访问节点，共做VVV次，总计O(V2)O(V^2)O(V2)。
-最短路示例
-以共有6个顶点(0-5)的带权有向图为例, 如下图所示
-
-我们从顶点0开始，找到到其他所有顶点的最短路径。
-初始化
-
-距离数组dist[]：[0,∞\infty∞,∞\infty∞,∞\infty∞,∞,∞\infty, \infty∞,∞]
-集合S：{}
-
-第1步
-
-选择不在S中且距离值最短的顶点u，即顶点0，距离为0
-将顶点0加入集合S，即S = {0}
-更新顶点0的相邻顶点{1， 2}的距离值
-
-顶点1：dist[1] =min⁡(∞,0+5)=5\min(\infty, 0+5) = 5min(∞,0+5)=5
-顶点2：dist[2] =min⁡(∞,0+2)=3\min(\infty, 0+2) = 3min(∞,0+2)=3
-
-
-距离数组更新为：[0, 5, 2,∞\infty∞,∞,∞\infty, \infty∞,∞]
-
-第2步
-
-选择不在S中且距离值最短的顶点u，即顶点2，距离为2
-将顶点2加入集合S，即S = {0, 2}
-更新顶点2的相邻顶点{1, 3}的距离值
-
-顶点1：dist[1] =min⁡(5,2+8)=5\min(5, 2+8) = 5min(5,2+8)=5(无变化)
-顶点3：dist[3] =min⁡(∞,2+7)=9\min(\infty, 2+7) = 9min(∞,2+7)=9
-
-
-距离数组更新为：[0, 5, 2, 9,∞,∞\infty, \infty∞,∞]
-
-第3步
-
-选择不在S中且距离值最短的顶点u，即顶点1，距离为5
-将顶点1加入集合S，即S = {0, 2, 1}
-更新顶点1的相邻顶点{3, 4}的距离值
-
-顶点3：dist[3] =min⁡(9,5+4)=9\min(9, 5+4) = 9min(9,5+4)=9（无变化）
-顶点4：dist[4] =min⁡(∞,5+2)=7\min(\infty, 5+2) = 7min(∞,5+2)=7
-
-
-距离数组更新为：[0, 5, 2, 9, 7,∞\infty∞]
-
-第4步
-
-选择不在S中且距离值最短的顶点u，即顶点4，距离为7
-将顶点4加入集合S，即S = {0, 2, 1, 4}
-更新顶点4的相邻顶点{5}的距离值
-
-顶点5：dist[5] =min⁡(∞,7+3)=10\min(\infty, 7+3) = 10min(∞,7+3)=10
-
-
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-第5步
-
-选择不在S中且距离值最短的顶点u，即顶点3，距离为9
-将顶点3加入集合S，即S = {0, 2, 1, 4, 3}
-更新顶点3的相邻顶点{4, 5}的距离值
-
-顶点4：dist[4] =min⁡(7,9+6)=7\min(7, 9+6) = 7min(7,9+6)=7 （无变化）
-顶点5：dist[5] =min⁡(10,9+5)=9\min(10, 9+5) = 9min(10,9+5)=9（无变化）
-
-
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-第6步
-
-选择不在S中且距离值最短的顶点u，即顶点5，距离为10
-将顶点5加入集合S，即S = {0, 2, 1, 4, 3, 5}
-顶点5没有邻接顶点，或所有邻接顶点都已在S中
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-算法结束
-
-最终的距离数组为：[0, 5, 2, 9, 7, 10]
-从顶点0到顶点1、2、3、4、5的最短距离分别为5、2、9、7、10
-
-核心特性
-
-贪心策略：每次都选择当前距离最小的顶点进行处理
-单源最短路径：找出从一个源顶点到所有其他顶点的最短路径
-正权图：要求所有边的权重为非负值
-时间复杂度：使用二叉堆的优先队列实现为O(Elog⁡V)O(E\log V)O(ElogV)，其中EEE为边数，VVV为顶点数
-空间复杂度：O(V)O(V)O(V)，主要用于存储距离数组和已访问集合
-
-python实现
-import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def __init__(self):        # 图的邻接表表示，&#123;顶点: &#123;邻接顶点: 边权重&#125;&#125;        self.graph = defaultdict(dict)    # 添加顶点    def add_vertex(self, vertex):        if vertex not in self.graph:            self.graph[vertex] = &#123;&#125;    # 添加边    def add_edge(self, source, destination, weight):        if weight &lt; 0:            raise ValueError(&quot;Dijkstra算法不支持负权边&quot;)        if source not in self.graph:            self.add_vertex(source)        if destination not in self.graph:            self.add_vertex(destination)        self.graph[source][destination] = weight    # Dijkstra算法实现    def dijkstra(self, start_vertex):        if start_vertex not in self.graph:            raise ValueError(&quot;起始顶点不存在&quot;)        # 存储到各顶点的最短距离        distances = &#123;vertex: float(&#x27;inf&#x27;) for vertex in self.graph&#125;        # 存储到各顶点的前驱顶点（用于路径重建）        previous_vertices = &#123;vertex: None for vertex in self.graph&#125;        # 优先队列，用于选择距离最小的顶点        priority_queue = [(0, start_vertex)]        # 已处理的顶点集合        settled = set()        # 起始顶点到自身的距离为0        distances[start_vertex] = 0        while priority_queue and len(settled) &lt; len(self.graph):            # 获取距离最小的顶点            current_distance, current_vertex = heapq.heappop(priority_queue)            # 如果该顶点已经处理过，则跳过            if current_vertex in settled:                continue            # 标记该顶点为已处理            settled.add(current_vertex)            # 更新相邻顶点的距离            self._update_neighbors_distances(                current_vertex,                distances,                previous_vertices,                priority_queue,                settled            )        return distances, previous_vertices    # 更新相邻顶点的距离    def _update_neighbors_distances(self, current_vertex, distances, previous_vertices, priority_queue, settled):        current_distance = distances[current_vertex]        neighbors = self.graph[current_vertex]        for neighbor, edge_weight in neighbors.items():            # 如果邻居已经处理过，则跳过            if neighbor in settled:                continue            # 计算通过当前顶点到达邻居的新距离            new_distance = current_distance + edge_weight            # 如果新距离更短，则更新            if new_distance &lt; distances[neighbor]:                distances[neighbor] = new_distance                previous_vertices[neighbor] = current_vertex                heapq.heappush(priority_queue, (new_distance, neighbor))    # 重建从起始顶点到目标顶点的最短路径    def get_path(self, start_vertex, end_vertex, previous_vertices):        path = []        # 如果没有路径到达终点，返回空列表        if previous_vertices[end_vertex] is None and start_vertex != end_vertex:            return path        # 从终点回溯到起点        curr = end_vertex        while curr is not None:            path.append(curr)            curr = previous_vertices[curr]        # 反转路径，使其从起点到终点        path.reverse()        return path# 使用示例if __name__ == &quot;__main__&quot;:    dijkstra = DijkstraAlgorithm()    # 构建图（同你的代码）    dijkstra.add_edge(0, 1, 5)    dijkstra.add_edge(0, 2, 2)    dijkstra.add_edge(1, 3, 4)    dijkstra.add_edge(1, 4, 2)    dijkstra.add_edge(2, 1, 8)    dijkstra.add_edge(2, 3, 7)    dijkstra.add_edge(3, 4, 6)    dijkstra.add_edge(3, 5, 1)    dijkstra.add_edge(4, 5, 3)    start_vertex = 0    # 获取距离和前驱信息    distances, previous_vertices = dijkstra.dijkstra(start_vertex)    print(f&quot;从顶点 &#123;start_vertex&#125; 到各顶点的最短距离：&quot;)    for vertex, distance in distances.items():        print(f&quot;到顶点 &#123;vertex&#125; 的距离：&#123;distance&#125;&quot;)    # 获取具体路径（例如从 0 到 5）    end_vertex = 5    path = dijkstra.get_path(start_vertex, end_vertex, previous_vertices)    if path:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 的最短路径：&#123;&#x27; → &#x27;.join(map(str, path))&#125;&quot;)    else:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 没有路径！&quot;)
-优缺点
-优点
-
-最优解：保证找到最短路径（在没有负权边的情况下）
-适用性广：可以解决许多现实世界的最短路径问题
-效率高：使用优先队列优化后，算法效率较高
-易于理解和实现：算法思想直观，实现相对简单
-
-缺点
-
-不适用于负权边：不能处理带有负权边的图
-不能检测负权环：在有负权环的图中可能无法正常工作
-空间消耗：需要存储距离数组和优先队列，空间复杂度较高
-效率受限于优先队列实现：不同的优先队列实现会影响算法效率
-
-]]></content>
-      <categories>
-        <category>数据结构与算法</category>
-      </categories>
-      <tags>
-        <tag>Dijkstra</tag>
-        <tag>图</tag>
-        <tag>最短路问题</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>资源受限的基本最短路问题</title>
     <url>/2025/11/06/ESSPRC/</url>
     <content><![CDATA[在使用列生成算法求解带时间窗限制的车辆路径规划问题时，定价子问题是一个资源受限的基本最短路问题（Elementary Shortest Path Problem with Resource Constraints，ESSPRC）。在文献中[^1]证明了ESSPRC问题是强NPNPNP难的，因此针对大规模的问题，使用求解器求解速度较慢。
@@ -372,104 +208,6 @@ mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V
       </tags>
   </entry>
   <entry>
-    <title>最小二乘法的矩阵推导</title>
-    <url>/2025/12/11/Least-Squares/</url>
-    <content><![CDATA[最小二乘法的矩阵形式推导
-
-问题设定
-
-给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
-y=Xβ+ε
-y = X\beta + \varepsilon
-y=Xβ+ε
-其中：
-y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
-X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
-β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
-ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
-我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
-RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
-目标函数展开
-
-展开 RSS：
-RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
-\begin{aligned}
-\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
-&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
-&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
-\end{aligned}
-RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
-3. 求导并令梯度为零
-对 β\betaβ 求梯度（使用矩阵微分）：
-∂RSS∂β=−2X⊤y+2X⊤Xβ
-\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
-∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
--2 X^\top y + 2 X^\top X \beta = 0
-\quad \Rightarrow \quad
-X^\top X \beta = X^\top y
-−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
-4. 解出最优参数
-若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
-β^=(X⊤X)−1X⊤y
-\hat{\beta} = (X^\top X)^{-1} X^\top y
-β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
-5. 总结
-最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
-]]></content>
-      <categories>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>最小二乘法</tag>
-        <tag>矩阵</tag>
-        <tag>线性代数</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Gradient descent method</title>
-    <url>/2024/12/17/Gradient-descent-method/</url>
-    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
-
-算法介绍
-对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
-由函数的泰勒展开式可以得到：
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
-f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
-因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
-xk+1=xk−α∇f(xk)
-\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
-xk+1=xk−α∇f(xk)
-其中步长α\alphaα可以是固定步长也可以是动态步长。
-应用举例-LASSO问题求解
-本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
-min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
-minf(x)=21​∥Ax−b∥2+μ∥x∥1​
-注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
-lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
-当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
-min⁡f(x)=12∥Ax−b∥2+μLδ(x),
-\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
-minf(x)=21​∥Ax−b∥2+μLδ​(x),
-其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
-计算出光滑化的LASSO函数的梯度为：
-∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
-其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
-(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>梯度下降</tag>
-        <tag>无约束优化算法</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>数据结构简介</title>
     <url>/2025/11/07/IntroductiotoDataStructures/</url>
     <content><![CDATA[数据结构是为实现对计算机数据有效使用的各种数据组织形式，服务于各类计算机操作。不同的数据结构具有各自对应的适用场景，旨在降低各种算法计算的时间与空间复杂度，达到最佳的任务执行效率。
@@ -535,6 +273,550 @@ from heapq import heappush, heappop# 初始化小顶堆heap = []# 元素入堆he
       </tags>
   </entry>
   <entry>
+    <title>Gradient descent method</title>
+    <url>/2024/12/17/Gradient-descent-method/</url>
+    <content><![CDATA[梯度下降法是一种用于优化函数的优化算法，它通过迭代地更新参数以找到函数的最小值。
+
+算法介绍
+对于光滑的函数f(x)f(\boldsymbol{x})f(x), 在给定起始点xk\boldsymbol{x}^kxk处，我们需要选择一个下降方向dk\boldsymbol{d}^kdk。 由此可以得到新的迭代点xk+1=xk+αdk\boldsymbol{x}^{k+1} = \boldsymbol{x}^k + \alpha \boldsymbol{d}^kxk+1=xk+αdk，其中α\alphaα为步长。最自然的想法是选取函数下降最快的方向作为dk\boldsymbol{d}^kdk。那么，函数下降最快的方向是什么方向呢？
+由函数的泰勒展开式可以得到：
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+f(\boldsymbol{x}^k + \alpha \boldsymbol{d}^k) = f(\boldsymbol{x}^k) + \alpha\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k + \mathcal{O}(\alpha^2\|\boldsymbol{d}^k\|^2)
+f(xk+αdk)=f(xk)+α∇f(xk)⊤dk+O(α2∥dk∥2)
+因此，dk\boldsymbol{d}^kdk应该使得∇f(xk)⊤dk\nabla f(\boldsymbol{x}^k)^\top \boldsymbol{d}^k∇f(xk)⊤dk尽可能小，所以dk\boldsymbol{d}^kdk应该取梯度的反方向作为最快的下降方向， 即dk=−∇f(xk)\boldsymbol{d}^k = -\nabla f(\boldsymbol{x}^k)dk=−∇f(xk). 因此，梯度下降算法的迭代公式为：
+xk+1=xk−α∇f(xk)
+\boldsymbol{x}^{k+1} = \boldsymbol{x}^k - \alpha \nabla f(\boldsymbol{x}^k)
+xk+1=xk−α∇f(xk)
+其中步长α\alphaα可以是固定步长也可以是动态步长。
+应用举例-LASSO问题求解
+本节将介绍如何使用梯度下降法求解LASSO问题。LASSO问题是线性回归问题加上L1范数正则化项，即：
+min⁡f(x)=12∥Ax−b∥2+μ∥x∥1
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu\|\boldsymbol{x}\|_1
+minf(x)=21​∥Ax−b∥2+μ∥x∥1​
+注意LASSO问题并不是一个光滑的问题，在某些点上其导数可能不存在，因此不能直接使用梯度法求解。考虑到非光滑项为L1范数，如果能找到一个光滑的函数来近似L1范数，就可以通过梯度下降法求解。实际上，我们可以考虑下面的一维光滑函数：
+lδ(x)={12δx2,∣x∣&lt;δ,∣x∣−δ2,其他.l_{\delta}(x)=\begin{cases}\frac{1}{2\delta}x^{2},&amp;|x|&lt;\delta,\\|x|-\frac{\delta}{2},&amp;\text{其他}.&amp;&amp;&amp;\end{cases}lδ​(x)={2δ1​x2,∣x∣−2δ​,​∣x∣&lt;δ,其他.​​​​
+当δ→0\delta\rightarrow0δ→0时，光滑函数lδ(x)l_{\delta}(x)lδ​(x)会和绝对值函数∣x∣|x|∣x∣越来越相似。因此，我们构造光滑化的LASSO函数为：
+min⁡f(x)=12∥Ax−b∥2+μLδ(x),
+\min f(\boldsymbol{x}) = \frac{1}{2}\|A\boldsymbol{x}- b\|^2 + \mu L_{\delta}(x),
+minf(x)=21​∥Ax−b∥2+μLδ​(x),
+其中μ\muμ是正则化参数，δ\deltaδ是光滑化参数。Lδ(x)=∑inlδ(xi)L_{\delta}(x)=\sum_i^nl_\delta(x_i)Lδ​(x)=∑in​lδ​(xi​)。
+计算出光滑化的LASSO函数的梯度为：
+∇fδ(x)=AT(Ax−b)+μ∇Lδ(x),\nabla f_\delta(x)=A^\mathrm{T}(Ax-b)+\mu\nabla L_\delta(x),∇fδ​(x)=AT(Ax−b)+μ∇Lδ​(x),
+其中∇Lδ(x)\nabla L_\delta(x)∇Lδ​(x)是针对逐个变量定义的：
+(∇Lδ(x))i={sign(xi),∣xi∣&gt;δ,xiδ,∣xi∣⩽δ.(\nabla L_{\delta}(x))_{i}=\begin{cases}\mathrm{sign}(x_{i}),&amp;|x_{i}|&gt;\delta,\\\frac{x_{i}}{\delta},&amp;|x_{i}|\leqslant\delta.&amp;&amp;&amp;\end{cases}(∇Lδ​(x))i​={sign(xi​),δxi​​,​∣xi​∣&gt;δ,∣xi​∣⩽δ.​​​​
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>梯度下降</tag>
+        <tag>无约束优化算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最小二乘法的矩阵推导</title>
+    <url>/2025/12/11/Least-Squares/</url>
+    <content><![CDATA[最小二乘法的矩阵形式推导
+
+问题设定
+
+给定一组观测数据 (xi,yi)(x_i, y_i)(xi​,yi​)，其中 i=1,2,…,ni = 1, 2, \dots, ni=1,2,…,n，我们希望拟合一个线性模型：
+y=Xβ+ε
+y = X\beta + \varepsilon
+y=Xβ+ε
+其中：
+y∈Rny \in \mathbb{R}^ny∈Rn 是观测值向量；
+X∈Rn×pX \in \mathbb{R}^{n \times p}X∈Rn×p 是设计矩阵（每一行对应一个样本的特征）；
+β∈Rp\beta \in \mathbb{R}^pβ∈Rp 是待估计的参数向量；
+ε∈Rn\varepsilon \in \mathbb{R}^nε∈Rn 是误差向量。
+我们的目标是找到 β^\hat{\beta}β^​，使得残差平方和（RSS）最小：
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+\text{RSS}(\beta) = (y - X\beta )^2 = (y - X\beta)^\top (y - X\beta)
+RSS(β)=(y−Xβ)2=(y−Xβ)⊤(y−Xβ)
+目标函数展开
+
+展开 RSS：
+RSS(β)=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ
+\begin{aligned}
+\text{RSS}(\beta) &amp;= (y - X\beta)^\top (y - X\beta) \\
+&amp;= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
+&amp;= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
+\end{aligned}
+RSS(β)​=(y−Xβ)⊤(y−Xβ)=y⊤y−y⊤Xβ−β⊤X⊤y+β⊤X⊤Xβ=y⊤y−2β⊤X⊤y+β⊤X⊤Xβ​（利用了标量转置不变性和 (Xβ)⊤y=β⊤X⊤y(X\beta)^\top y = \beta^\top X^\top y(Xβ)⊤y=β⊤X⊤y）
+3. 求导并令梯度为零
+对 β\betaβ 求梯度（使用矩阵微分）：
+∂RSS∂β=−2X⊤y+2X⊤Xβ
+\frac{\partial \text{RSS}}{\partial \beta} = -2 X^\top y + 2 X^\top X \beta
+∂β∂RSS​=−2X⊤y+2X⊤Xβ令梯度为零：
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y
+-2 X^\top y + 2 X^\top X \beta = 0
+\quad \Rightarrow \quad
+X^\top X \beta = X^\top y
+−2X⊤y+2X⊤Xβ=0⇒X⊤Xβ=X⊤y这就是正规方程（Normal Equation）。
+4. 解出最优参数
+若 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩），则最小二乘解为：
+β^=(X⊤X)−1X⊤y
+\hat{\beta} = (X^\top X)^{-1} X^\top y
+β^​=(X⊤X)−1X⊤y这个 β^\hat{\beta}β^​ 使得残差平方和最小。
+5. 总结
+最小二乘法通过最小化残差平方和来估计线性模型参数。矩阵形式简洁且便于编程实现。关键公式：β^=(X⊤X)−1X⊤y\hat{\beta} = (X^\top X)^{-1} X^\top yβ^​=(X⊤X)−1X⊤y, 要求 X⊤XX^\top XX⊤X 可逆（即 XXX 列满秩）。
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>最小二乘法</tag>
+        <tag>矩阵</tag>
+        <tag>线性代数</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Dijkstra算法</title>
+    <url>/2025/11/08/DijkstraAlgorithm/</url>
+    <content><![CDATA[最近在学习车辆调度问题，精确算法求解该问题时会涉及到求最短路径，所以先复习一下图中的最短路径算法——迪杰斯特拉算法。
+迪杰斯特拉算法的全称是Dijkstra算法，由荷兰计算机科学家艾兹赫尔·迪杰斯特拉（Edsger W. Dijkstra）于1959年提出。这是一种用于解决带权图中单源最短路径问题的经典算法，适用于所有边权为非负值的图。也就是说在给定的一张图中，一个顶点到另一个顶点的路径可能有多条，最短路径指的就是顶点之间“最短”的路径。
+算法步骤
+迪杰斯特拉算法的原理是：从源点出发，依次选择距离源点最短的顶点，然后更新该顶点到其他顶点的距离。
+
+创建一个距离数组dist[]，对于每个顶点v，初始化dist[v]为无穷大，但起始顶点s的距离为0
+创建一个集合S，用于存储已找到最短路径的顶点，初始为空
+循环重复以下步骤，直到所有顶点都被加入集合S：
+
+选择不在S中且距离值最小的顶点u
+将顶点u加入集合S
+更新顶点u的相邻顶点v的距离值：如果dist[u] + w(u,v)小于dist[v]，则更新dist[v]为dist[u] + w(u,v)
+
+
+当循环结束时，dist[]数组包含了从起始顶点s到所有其他顶点的最短距离
+
+时间复杂度分析
+算法包括了两部分：找最小距离顶点以及松弛边的操作。现在我们把两部分加起来：
+（1）找最小距离顶点的操作
+每轮都要扫描全部VVV个顶点来找最小值。
+总共进行VVV轮（每个顶点恰好被选中一次）。
+所以这部分总时间 =V×V=O(V2)V \times V = O(V^2)V×V=O(V2)
+（2）松弛边的操作
+对每个顶点 u，我们遍历它的所有邻接边。
+所有顶点的邻接边总数 =2E2E2E（无向图）或EEE（有向图）→ 统一视为O(E)O(E)O(E)
+所以松弛总时间 =O(E)O(E)O(E)
+合并两部分：
+总时间复杂度 =O(V2+E)O(V^2 + E)O(V2+E)
+但在最坏情况下（比如完全图），边数E=O(V2)E = O(V^2)E=O(V2)，所以O(V2+E)=O(V2)O(V^2 + E) = O(V^2)O(V2+E)=O(V2)
+更重要的是：即使图很稀疏（比如E=O(V)E = O(V)E=O(V)），找最小值的操作仍然是O(V2)O(V^2)O(V2)，这部分占主导！
+因此，朴素 Dijkstra 的时间复杂度被写作O(V2)O(V^2)O(V2)，因为它由“找最小值”这一步决定，与边数关系不大。
+举个例子
+假设图有V=5V = 5V=5个顶点：
+第1轮：扫描5个点找最小 → 4次比较
+第2轮：扫描剩下4个未访问点 → 3次
+…
+第5轮：扫描1个点 → 0次
+总比较次数 =4+3+2+1=V(V−1)2=O(V2)4 + 3 + 2  + 1 = \frac{V(V-1)}{2} = O(V^2)4+3+2+1=2V(V−1)​=O(V2)
+这就是O(V2)O(V^2)O(V2)的来源！
+优化版本
+如果用最小堆（优先队列）来维护未访问节点的距离，那么：
+取最小值：O(log⁡V)O(\log V)O(logV)
+插入/更新：每次O(log⁡V)O(\log V)O(logV)，最多EEE次
+总时间变成O((V+E)log⁡V)O((V + E) \log V)O((V+E)logV)，在稀疏图（E≈VE \approx VE≈V）中远优于O(V2)O(V^2)O(V2)。
+总结
+朴素 Dijkstra 是O(V2)O(V^2)O(V2)，因为每一步都要线性扫描所有顶点来找到当前距离最小的未访问节点，共做VVV次，总计O(V2)O(V^2)O(V2)。
+最短路示例
+以共有6个顶点(0-5)的带权有向图为例, 如下图所示
+
+我们从顶点0开始，找到到其他所有顶点的最短路径。
+初始化
+
+距离数组dist[]：[0,∞\infty∞,∞\infty∞,∞\infty∞,∞,∞\infty, \infty∞,∞]
+集合S：{}
+
+第1步
+
+选择不在S中且距离值最短的顶点u，即顶点0，距离为0
+将顶点0加入集合S，即S = {0}
+更新顶点0的相邻顶点{1， 2}的距离值
+
+顶点1：dist[1] =min⁡(∞,0+5)=5\min(\infty, 0+5) = 5min(∞,0+5)=5
+顶点2：dist[2] =min⁡(∞,0+2)=3\min(\infty, 0+2) = 3min(∞,0+2)=3
+
+
+距离数组更新为：[0, 5, 2,∞\infty∞,∞,∞\infty, \infty∞,∞]
+
+第2步
+
+选择不在S中且距离值最短的顶点u，即顶点2，距离为2
+将顶点2加入集合S，即S = {0, 2}
+更新顶点2的相邻顶点{1, 3}的距离值
+
+顶点1：dist[1] =min⁡(5,2+8)=5\min(5, 2+8) = 5min(5,2+8)=5(无变化)
+顶点3：dist[3] =min⁡(∞,2+7)=9\min(\infty, 2+7) = 9min(∞,2+7)=9
+
+
+距离数组更新为：[0, 5, 2, 9,∞,∞\infty, \infty∞,∞]
+
+第3步
+
+选择不在S中且距离值最短的顶点u，即顶点1，距离为5
+将顶点1加入集合S，即S = {0, 2, 1}
+更新顶点1的相邻顶点{3, 4}的距离值
+
+顶点3：dist[3] =min⁡(9,5+4)=9\min(9, 5+4) = 9min(9,5+4)=9（无变化）
+顶点4：dist[4] =min⁡(∞,5+2)=7\min(\infty, 5+2) = 7min(∞,5+2)=7
+
+
+距离数组更新为：[0, 5, 2, 9, 7,∞\infty∞]
+
+第4步
+
+选择不在S中且距离值最短的顶点u，即顶点4，距离为7
+将顶点4加入集合S，即S = {0, 2, 1, 4}
+更新顶点4的相邻顶点{5}的距离值
+
+顶点5：dist[5] =min⁡(∞,7+3)=10\min(\infty, 7+3) = 10min(∞,7+3)=10
+
+
+距离数组更新为：[0, 5, 2, 9, 7, 10]
+
+第5步
+
+选择不在S中且距离值最短的顶点u，即顶点3，距离为9
+将顶点3加入集合S，即S = {0, 2, 1, 4, 3}
+更新顶点3的相邻顶点{4, 5}的距离值
+
+顶点4：dist[4] =min⁡(7,9+6)=7\min(7, 9+6) = 7min(7,9+6)=7 （无变化）
+顶点5：dist[5] =min⁡(10,9+5)=9\min(10, 9+5) = 9min(10,9+5)=9（无变化）
+
+
+距离数组更新为：[0, 5, 2, 9, 7, 10]
+
+第6步
+
+选择不在S中且距离值最短的顶点u，即顶点5，距离为10
+将顶点5加入集合S，即S = {0, 2, 1, 4, 3, 5}
+顶点5没有邻接顶点，或所有邻接顶点都已在S中
+距离数组更新为：[0, 5, 2, 9, 7, 10]
+
+算法结束
+
+最终的距离数组为：[0, 5, 2, 9, 7, 10]
+从顶点0到顶点1、2、3、4、5的最短距离分别为5、2、9、7、10
+
+核心特性
+
+贪心策略：每次都选择当前距离最小的顶点进行处理
+单源最短路径：找出从一个源顶点到所有其他顶点的最短路径
+正权图：要求所有边的权重为非负值
+时间复杂度：使用二叉堆的优先队列实现为O(Elog⁡V)O(E\log V)O(ElogV)，其中EEE为边数，VVV为顶点数
+空间复杂度：O(V)O(V)O(V)，主要用于存储距离数组和已访问集合
+
+python实现
+import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def __init__(self):        # 图的邻接表表示，&#123;顶点: &#123;邻接顶点: 边权重&#125;&#125;        self.graph = defaultdict(dict)    # 添加顶点    def add_vertex(self, vertex):        if vertex not in self.graph:            self.graph[vertex] = &#123;&#125;    # 添加边    def add_edge(self, source, destination, weight):        if weight &lt; 0:            raise ValueError(&quot;Dijkstra算法不支持负权边&quot;)        if source not in self.graph:            self.add_vertex(source)        if destination not in self.graph:            self.add_vertex(destination)        self.graph[source][destination] = weight    # Dijkstra算法实现    def dijkstra(self, start_vertex):        if start_vertex not in self.graph:            raise ValueError(&quot;起始顶点不存在&quot;)        # 存储到各顶点的最短距离        distances = &#123;vertex: float(&#x27;inf&#x27;) for vertex in self.graph&#125;        # 存储到各顶点的前驱顶点（用于路径重建）        previous_vertices = &#123;vertex: None for vertex in self.graph&#125;        # 优先队列，用于选择距离最小的顶点        priority_queue = [(0, start_vertex)]        # 已处理的顶点集合        settled = set()        # 起始顶点到自身的距离为0        distances[start_vertex] = 0        while priority_queue and len(settled) &lt; len(self.graph):            # 获取距离最小的顶点            current_distance, current_vertex = heapq.heappop(priority_queue)            # 如果该顶点已经处理过，则跳过            if current_vertex in settled:                continue            # 标记该顶点为已处理            settled.add(current_vertex)            # 更新相邻顶点的距离            self._update_neighbors_distances(                current_vertex,                distances,                previous_vertices,                priority_queue,                settled            )        return distances, previous_vertices    # 更新相邻顶点的距离    def _update_neighbors_distances(self, current_vertex, distances, previous_vertices, priority_queue, settled):        current_distance = distances[current_vertex]        neighbors = self.graph[current_vertex]        for neighbor, edge_weight in neighbors.items():            # 如果邻居已经处理过，则跳过            if neighbor in settled:                continue            # 计算通过当前顶点到达邻居的新距离            new_distance = current_distance + edge_weight            # 如果新距离更短，则更新            if new_distance &lt; distances[neighbor]:                distances[neighbor] = new_distance                previous_vertices[neighbor] = current_vertex                heapq.heappush(priority_queue, (new_distance, neighbor))    # 重建从起始顶点到目标顶点的最短路径    def get_path(self, start_vertex, end_vertex, previous_vertices):        path = []        # 如果没有路径到达终点，返回空列表        if previous_vertices[end_vertex] is None and start_vertex != end_vertex:            return path        # 从终点回溯到起点        curr = end_vertex        while curr is not None:            path.append(curr)            curr = previous_vertices[curr]        # 反转路径，使其从起点到终点        path.reverse()        return path# 使用示例if __name__ == &quot;__main__&quot;:    dijkstra = DijkstraAlgorithm()    # 构建图（同你的代码）    dijkstra.add_edge(0, 1, 5)    dijkstra.add_edge(0, 2, 2)    dijkstra.add_edge(1, 3, 4)    dijkstra.add_edge(1, 4, 2)    dijkstra.add_edge(2, 1, 8)    dijkstra.add_edge(2, 3, 7)    dijkstra.add_edge(3, 4, 6)    dijkstra.add_edge(3, 5, 1)    dijkstra.add_edge(4, 5, 3)    start_vertex = 0    # 获取距离和前驱信息    distances, previous_vertices = dijkstra.dijkstra(start_vertex)    print(f&quot;从顶点 &#123;start_vertex&#125; 到各顶点的最短距离：&quot;)    for vertex, distance in distances.items():        print(f&quot;到顶点 &#123;vertex&#125; 的距离：&#123;distance&#125;&quot;)    # 获取具体路径（例如从 0 到 5）    end_vertex = 5    path = dijkstra.get_path(start_vertex, end_vertex, previous_vertices)    if path:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 的最短路径：&#123;&#x27; → &#x27;.join(map(str, path))&#125;&quot;)    else:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 没有路径！&quot;)
+优缺点
+优点
+
+最优解：保证找到最短路径（在没有负权边的情况下）
+适用性广：可以解决许多现实世界的最短路径问题
+效率高：使用优先队列优化后，算法效率较高
+易于理解和实现：算法思想直观，实现相对简单
+
+缺点
+
+不适用于负权边：不能处理带有负权边的图
+不能检测负权环：在有负权环的图中可能无法正常工作
+空间消耗：需要存储距离数组和优先队列，空间复杂度较高
+效率受限于优先队列实现：不同的优先队列实现会影响算法效率
+
+]]></content>
+      <categories>
+        <category>数据结构与算法</category>
+      </categories>
+      <tags>
+        <tag>Dijkstra</tag>
+        <tag>图</tag>
+        <tag>最短路问题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最优化理论与方法-无约束优化</title>
+    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
+    <content><![CDATA[无约束优化
+
+
+无约束优化问题
+
+无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
+min⁡xf(x)
+\min_{x} f(x)
+xmin​f(x)
+其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
+
+
+
+
+什么是一个解？
+
+
+全局最小值点：
+点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
+f(x∗)≤f(x),∀ x∈Rn.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
+f(x∗)≤f(x),∀x∈Rn.
+
+
+局部最小值点：
+大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
+点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
+f(x∗)≤f(x),∀ x∈N.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
+f(x∗)≤f(x),∀x∈N.
+
+
+严格局部最小值点：
+若存在邻域 N\mathcal{N}N，使得
+f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
+f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
+f(x∗)&lt;f(x),∀x∈N,x=x∗,
+则称 x∗x^*x∗ 为严格局部最小值点。
+
+.itsecpinkrtd{}
+
+
+
+
+
+识别一个局部最小
+
+
+当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
+
+
+特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
+
+梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
+Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
+
+
+
+一阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
+∇f(x∗)=0.
+\nabla f(x^*) = 0.
+∇f(x∗)=0.
+此条件称为一阶必要条件（first-order necessary condition）。
+若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
+因此，任何局部极小值点都必须是驻点。
+
+
+
+二阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
+
+梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
+Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
+
+
+
+
+这两个条件合称为二阶必要条件（second-order necessary conditions）。
+
+
+
+二阶充分条件
+
+假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
+
+
+此为二阶充分条件（second-order sufficient condition）。
+
+
+
+针对凸函数的情况
+
+若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
+进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
+
+
+
+
+
+
+算法总览
+对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
+
+
+随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
+它适用于组合优化问题以及规模较小的连续优化问题。
+常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
+
+
+确定型方法根据所利用函数信息的程度，进一步分为：
+
+直接搜索法（又称模式搜索法）
+梯度型方法
+
+
+
+直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
+它不需要计算梯度，适用于以下情形：
+
+变量维数较低，
+约束结构简单，
+目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
+典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
+
+
+
+
+
+两种策略
+对于梯度型数值方法(Gradient-based),一般通过两种策略，来
+由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
+
+线搜索
+
+在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
+沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
+min⁡α&gt;0f(xk+αpk).
+\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
+α&gt;0min​f(xk​+αpk​).
+虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
+
+
+信赖域
+
+在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
+然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
+因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
+min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
+\begin{aligned}
+\min_{p} \quad &amp; m_k(x_k + p) \\
+\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
+\end{aligned}
+pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
+其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
+模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
+mk(xk+p)=fk+pT∇fk+12pTBkp,
+m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
+mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
+其中：
+
+fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
+∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
+BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
+
+
+
+
+线搜索VS信赖域
+
+
+线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
+
+
+线搜索方法：
+
+首先选定一个搜索方向 pkp_kpk​；
+然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
+
+
+
+信赖域方法：
+
+首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
+然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
+
+
+
+
+
+
+
+线搜索——搜索方向
+
+
+线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
+pkT∇f(xk)&lt;0.
+p_k^T \nabla f(x_k) &lt; 0.
+pkT​∇f(xk​)&lt;0.
+
+
+这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
+f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
+f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
+f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
+即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
+
+
+一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
+通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
+
+
+在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
+
+
+搜索方向包括：
+
+最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
+牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
+拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
+
+
+
+
+
+最速下降方向
+
+
+最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
+
+
+考虑一阶泰勒展开：
+f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
+f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
+f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
+要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
+min⁡p  pT∇fksubject to∥p∥=1.
+\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
+pmin​pT∇fk​subject to∥p∥=1.
+
+
+该问题的解为：
+p=−∇fk∥∇fk∥,
+p = -\frac{\nabla f_k}{\|\nabla f_k\|},
+p=−∥∇fk​∥∇fk​​,
+即负梯度方向是单位长度下的最速下降方向。
+
+
+因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
+pk=−∇f(xk).
+p_k = -\nabla f(x_k).
+pk​=−∇f(xk​).
+
+
+
+.baysfbepvjnt{}  
+
+- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
+
+但在困难问题上，其收敛速度可能极其缓慢。
+
+
+.skhmdjrfffma{}
+
+
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>最优化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>最优化理论与方法-引言和预备知识</title>
     <url>/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/</url>
     <content><![CDATA[引言和预备知识
@@ -557,7 +839,7 @@ Optimization
 
 优化的过程
 
-.ltjtfqcdynot{}
+.dineootssjli{}
 
 
 
@@ -1150,7 +1432,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.ysjowwdxprak{}
+.npdfjsnjncqn{}
 
 
 
@@ -1194,7 +1476,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.dkoiyccwhyso{}
+.ycebjlcydvjx{}
 
 
 
@@ -1215,7 +1497,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.pffjgiekiaim{}
+.ymoefhwtityx{}
 
 
 
@@ -1254,13 +1536,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .kxsunqifhmsz{}
+  .bflbddxqyxeo{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.dxuijgqphzzc{}
+.bccvwmhghkcq{}
 
 
 
@@ -1289,7 +1571,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.ctvmjodrghml{}
+.njpchmnobogm{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1312,7 +1594,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.gtdtsrqlhwpg{}
+.jguwjiwgpelb{}
 
 
 
@@ -1321,7 +1603,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.ygniuspohigu{}
+.wsvegmfqyzha{}
 
 
 
@@ -1329,7 +1611,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.ylegmunlomql{}
+.snwepagbmnyg{}
 
 
 
@@ -1511,7 +1793,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.flldaxrrvkgc{}
+.nvxrgptxbafm{}
 
 
 
@@ -1538,7 +1820,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.kzmizhbuscdb{}
+.mfkqfgdcobkj{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1555,7 +1837,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.tgweyphqputm{}
+.fcsusnpkidjm{}
 
 
 
@@ -1845,343 +2127,69 @@ status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856
       </tags>
   </entry>
   <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
+    <url>/2025/11/07/VRPTW/</url>
+    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
 
-Transportation Research 系列 ISO 缩写一览表
+问题数学描述
+假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
+模型定义
+决策变量
 
+xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
+ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
+ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
 
+目标函数
+最小化总的行驶成本：
+min⁡∑i,j∈Acijxij
+\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
+mini,j∈A∑​cij​xij​
+约束
 
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
-
-
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
-
-
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
-
-
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
-
-
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
-
-
-
-
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
-
+离开客户的车辆数目必须为1：
+∑j∈Vxij=1,∀i∈C
+\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
+j∈V∑​xij​=1,∀i∈C
+进出入车厂的数量必须相等, 车厂的流平衡约束：
+∑j∈Vxoj−∑i∈Vxid=0
+\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
+j∈V∑​xoj​−i∈V∑​xid​=0
+进出入客户的车的数量必须相等，客户点的流平衡约束：
+∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
+i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
+车辆的容量约束， (MTZ子回路消除)：
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆行驶时间约束：
+ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
+客户时间窗约束：
+ai≤ti≤bi,∀i∈V
+a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
+ai​≤ti​≤bi​,∀i∈V
+车辆容量约束：
+0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
+完整的VRPTW的数学优化模型如下：
+min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{align}
+\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
+\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
+          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
+          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
+          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
+          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
+          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
+\end{align}
+mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
 
 ]]></content>
       <categories>
-        <category>论文写作</category>
+        <category>运筹优化</category>
       </categories>
       <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>最优化理论与方法-无约束优化</title>
-    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
-    <content><![CDATA[无约束优化
-
-
-无约束优化问题
-
-无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
-min⁡xf(x)
-\min_{x} f(x)
-xmin​f(x)
-其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
-
-
-
-
-什么是一个解？
-
-
-全局最小值点：
-点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
-f(x∗)≤f(x),∀ x∈Rn.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
-f(x∗)≤f(x),∀x∈Rn.
-
-
-局部最小值点：
-大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
-点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
-f(x∗)≤f(x),∀ x∈N.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
-f(x∗)≤f(x),∀x∈N.
-
-
-严格局部最小值点：
-若存在邻域 N\mathcal{N}N，使得
-f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
-f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
-f(x∗)&lt;f(x),∀x∈N,x=x∗,
-则称 x∗x^*x∗ 为严格局部最小值点。
-
-.kmljgbeepvoe{}
-
-
-
-
-
-识别一个局部最小
-
-
-当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
-
-
-特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
-
-梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
-Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
-
-
-
-一阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
-∇f(x∗)=0.
-\nabla f(x^*) = 0.
-∇f(x∗)=0.
-此条件称为一阶必要条件（first-order necessary condition）。
-若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
-因此，任何局部极小值点都必须是驻点。
-
-
-
-二阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
-
-梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
-Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
-
-
-
-
-这两个条件合称为二阶必要条件（second-order necessary conditions）。
-
-
-
-二阶充分条件
-
-假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
-
-
-此为二阶充分条件（second-order sufficient condition）。
-
-
-
-针对凸函数的情况
-
-若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
-进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
-
-
-
-
-
-
-算法总览
-对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
-
-
-随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
-它适用于组合优化问题以及规模较小的连续优化问题。
-常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
-
-
-确定型方法根据所利用函数信息的程度，进一步分为：
-
-直接搜索法（又称模式搜索法）
-梯度型方法
-
-
-
-直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
-它不需要计算梯度，适用于以下情形：
-
-变量维数较低，
-约束结构简单，
-目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
-典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
-
-
-
-
-
-两种策略
-对于梯度型数值方法(Gradient-based),一般通过两种策略，来
-由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
-
-线搜索
-
-在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
-沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
-min⁡α&gt;0f(xk+αpk).
-\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
-α&gt;0min​f(xk​+αpk​).
-虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
-
-
-信赖域
-
-在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
-然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
-因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
-min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
-\begin{aligned}
-\min_{p} \quad &amp; m_k(x_k + p) \\
-\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
-\end{aligned}
-pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
-其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
-模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
-mk(xk+p)=fk+pT∇fk+12pTBkp,
-m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
-mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
-其中：
-
-fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
-∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
-BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
-
-
-
-
-线搜索VS信赖域
-
-
-线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
-
-
-线搜索方法：
-
-首先选定一个搜索方向 pkp_kpk​；
-然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
-
-
-
-信赖域方法：
-
-首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
-然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
-
-
-
-
-
-
-
-线搜索——搜索方向
-
-
-线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
-pkT∇f(xk)&lt;0.
-p_k^T \nabla f(x_k) &lt; 0.
-pkT​∇f(xk​)&lt;0.
-
-
-这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
-f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
-f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
-f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
-即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
-
-
-一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
-通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
-
-
-在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
-
-
-搜索方向包括：
-
-最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
-牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
-拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
-
-
-
-
-
-最速下降方向
-
-
-最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
-
-
-考虑一阶泰勒展开：
-f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
-f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
-f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
-要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
-min⁡p  pT∇fksubject to∥p∥=1.
-\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
-pmin​pT∇fk​subject to∥p∥=1.
-
-
-该问题的解为：
-p=−∇fk∥∇fk∥,
-p = -\frac{\nabla f_k}{\|\nabla f_k\|},
-p=−∥∇fk​∥∇fk​​,
-即负梯度方向是单位长度下的最速下降方向。
-
-
-因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
-pk=−∇f(xk).
-p_k = -\nabla f(x_k).
-pk​=−∇f(xk​).
-
-
-
-.tcpnfbnreuou{}  
-
-- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
-
-但在困难问题上，其收敛速度可能极其缓慢。
-
-
-.lcynpaxpskag{}
-
-
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>最优化</tag>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
       </tags>
   </entry>
   <entry>
@@ -2408,69 +2416,195 @@ column generation的建模方式求解速度快，但求解结果不一定准确
       </tags>
   </entry>
   <entry>
-    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
-    <url>/2025/11/07/VRPTW/</url>
-    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
 
-问题数学描述
-假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
-模型定义
-决策变量
+Transportation Research 系列 ISO 缩写一览表
 
-xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
-ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
-ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
 
-目标函数
-最小化总的行驶成本：
-min⁡∑i,j∈Acijxij
-\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
-mini,j∈A∑​cij​xij​
-约束
 
-离开客户的车辆数目必须为1：
-∑j∈Vxij=1,∀i∈C
-\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
-j∈V∑​xij​=1,∀i∈C
-进出入车厂的数量必须相等, 车厂的流平衡约束：
-∑j∈Vxoj−∑i∈Vxid=0
-\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
-j∈V∑​xoj​−i∈V∑​xid​=0
-进出入客户的车的数量必须相等，客户点的流平衡约束：
-∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
-i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
-车辆的容量约束， (MTZ子回路消除)：
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆行驶时间约束：
-ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
-客户时间窗约束：
-ai≤ti≤bi,∀i∈V
-a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
-ai​≤ti​≤bi​,∀i∈V
-车辆容量约束：
-0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
-完整的VRPTW的数学优化模型如下：
-min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{align}
-\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
-\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
-          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
-          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
-          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
-          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
-          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
-\end{align}
-mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
+期刊全称
+ISO 标准缩写
 
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Wasserstein距离简介</title>
+    <url>/2026/07/08/wasserstein-distance-intro/</url>
+    <content><![CDATA[Wasserstein 距离是一种衡量两个概率分布之间差异的度量，在最优传输理论中有着核心地位。相比于 KL 散度等传统度量，Wasserstein 距离能更好地反映分布之间的几何结构差异，因此在机器学习、计算机视觉等领域得到了广泛应用。
+
+直观理解：推土机距离
+Wasserstein 距离最经典的直观解释是推土机距离（Earth Mover’s Distance, EMD）：
+
+把一堆土从当前位置搬运到目标位置，最小化总搬运工作量。
+
+假设有两堆形状不同的土堆 P\mathbb{P}P 和 Q\mathbb{Q}Q：
+
+P\mathbb{P}P：当前位置的土堆（源分布）
+Q\mathbb{Q}Q：目标形状的土堆（目标分布）
+c(x,y)c(x, y)c(x,y)：从位置 xxx 搬运一单位土到位置 yyy 的代价，通常取欧氏距离的 ppp 次方 ∥x−y∥p\|x - y\|^p∥x−y∥p
+在所有可能的搬运方案（Transport Plans）中，找到能将 P\mathbb{P}P 完全重塑为 Q\mathbb{Q}Q 且总做功最小的方案
+
+Wasserstein 距离 = 将所有土从 P\mathbb{P}P 的形状搬运成 Q\mathbb{Q}Q 的形状所需的最小总代价。
+
+图1：推土机距离示意图——将左侧分布 P\mathbb{P}P 的土搬运成右侧分布 Q\mathbb{Q}Q 的形状
+Kantorovich 问题：从直觉到数学
+从直觉到公式
+搬运土堆比喻很直观——把 P\mathbb{P}P 形状的土堆搬成 Q\mathbb{Q}Q 的形状，最小化总搬运代价。现在需要把这个直觉写成数学。
+要精确描述一个运输方案，只需要回答三个问题：
+
+谁搬到谁——xxx 处的土有多少运到了 yyy？
+搬多少——从 xxx 运出的总量 = P\mathbb{P}P 在 xxx 的质量；运入 yyy 的总量 = Q\mathbb{Q}Q 在 yyy 的质量
+花多少钱——每单位土从 xxx 到 yyy 的代价是 c(x,y)c(x,y)c(x,y)，总代价 = 每段路程的运量 × 单价，求和
+
+Kantorovich（1942）用联合分布 γ(x,y)\gamma(x, y)γ(x,y) 统一回答了这三个问题：
+
+γ(x,y)\gamma(x, y)γ(x,y)：从 xxx 运到 yyy 的土量（回答&quot;谁搬到谁&quot;）
+γ\gammaγ 作为运输计划的概率密度（或质量函数），称为 运输计划（transport plan / coupling）
+
+Kantorovich 问题
+Wc(P,Q)=inf⁡γ∈Γ(P,Q)∫X×Yc(x,y) dγ(x,y)\mathcal{W}_c(P, Q) = \inf_{\gamma \in \Gamma(\mathbb{P}, \mathbb{Q})} \int_{\mathcal{X} \times \mathcal{Y}} c(x, y) \, d\gamma(x, y)Wc​(P,Q)=γ∈Γ(P,Q)inf​∫X×Y​c(x,y)dγ(x,y)其中：
+Γ(P,Q)={γ∈P(X×Y):Proj1♯γ=PProj2♯γ=Q}\Gamma(\mathbb{P}, \mathbb{Q}) = \left\{ \gamma \in \mathcal{P}(\mathcal{X} \times \mathcal{Y}) : \begin{array}{l} \text{Proj}_{1\sharp}\gamma = \mathbb{P} \\ \text{Proj}_{2\sharp}\gamma = \mathbb{Q} \end{array} \right\}Γ(P,Q)={γ∈P(X×Y):Proj1♯​γ=PProj2♯​γ=Q​}Γ(P,Q)\Gamma(\mathbb{P}, \mathbb{Q})Γ(P,Q) 是所有边际分别为 P\mathbb{P}P 和 Q\mathbb{Q}Q 的联合分布的集合。
+为什么这个形式是好的？
+
+凸优化问题：目标函数关于 γ\gammaγ 是线性的，约束是凸的 → 一个线性规划（在无穷维空间上）
+解总是存在：不要求一个 xxx 只能映射到一个 yyy，允许分拆运输（mass splitting），总能构造出满足边际约束的 γ\gammaγ
+对偶性：凸结构使得强对偶成立，因此可以推导出对偶形式
+
+离散情形下的直观理解
+在离散情形下，P\mathbb{P}P 和 Q\mathbb{Q}Q 是两个离散分布：
+P=∑i=1mpiδxi,Q=∑j=1nqjδyj\mathbb{P} = \sum_{i=1}^{m} p_i \delta_{x_i}, \quad \mathbb{Q} = \sum_{j=1}^{n} q_j \delta_{y_j}P=i=1∑m​pi​δxi​​,Q=j=1∑n​qj​δyj​​运输计划 γ\gammaγ 变成一个 m×nm \times nm×n 的矩阵：
+γ=(γ11γ12⋯γ1nγ21γ22⋯γ2n⋮⋮⋱⋮γm1γm2⋯γmn)\gamma = \begin{pmatrix}
+\gamma_{11} &amp; \gamma_{12} &amp; \cdots &amp; \gamma_{1n} \\
+\gamma_{21} &amp; \gamma_{22} &amp; \cdots &amp; \gamma_{2n} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+\gamma_{m1} &amp; \gamma_{m2} &amp; \cdots &amp; \gamma_{mn}
+\end{pmatrix}γ=​γ11​γ21​⋮γm1​​γ12​γ22​⋮γm2​​⋯⋯⋱⋯​γ1n​γ2n​⋮γmn​​​约束条件：
+∑jγij=pi(行和=P的质量),∑iγij=qj(列和=Q的质量)\sum_{j} \gamma_{ij} = p_i \quad (\text{行和} = \mathbb{P} \text{的质量}), \qquad \sum_{i} \gamma_{ij} = q_j \quad (\text{列和} = \mathbb{Q} \text{的质量})j∑​γij​=pi​(行和=P的质量),i∑​γij​=qj​(列和=Q的质量)这正是一个标准的运输线性规划（transportation LP）。
+Kantorovich 问题变为：
+min⁡γ≥0∑i=1m∑j=1nc(xi,yj)⋅γij,s.t. γ1=p,  γ⊤1=q\min_{\gamma \ge 0} \sum_{i=1}^{m} \sum_{j=1}^{n} c(x_i, y_j) \cdot \gamma_{ij}, \quad \text{s.t. } \gamma\mathbf{1} = p,\; \gamma^\top\mathbf{1} = qγ≥0min​i=1∑m​j=1∑n​c(xi​,yj​)⋅γij​,s.t. γ1=p,γ⊤1=q]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>Wasserstein距离</tag>
+        <tag>最优传输</tag>
+        <tag>概率分布</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>设施选址问题及其变种</title>
+    <url>/2026/08/03/facility-location-problems/</url>
+    <content><![CDATA[设施选址问题（Facility Location Problem, FLP）是运筹学中的一类经典优化问题：从若干候选位置中选择设施（如仓库、工厂、基站、数据中心、医院等）的最佳位置，使其服务需求的总成本最小，同时满足覆盖、容量等约束。它是整数规划的典型应用，广泛存在于物流、供应链、公共服务、通信网络等领域。
+根据目标函数与约束性质的不同，选址问题大致可分为覆盖类、中位类、中心类和成本类四大基本模型，并在此基础上衍生出大量变种。
+
+基本建模框架
+不妨设：
+
+I={1,2,…,m}I=\{1,2,\dots,m\}I={1,2,…,m}：需求点集合，需求点 iii 的需求量为 wiw_iwi​；
+J={1,2,…,n}J=\{1,2,\dots,n\}J={1,2,…,n}：候选设施位置集合，设施 jjj 的建造成本为 fjf_jfj​，容量为 bjb_jbj​；
+dijd_{ij}dij​：需求点 iii 到设施 jjj 的距离（或单位服务成本 cijc_{ij}cij​）。
+
+大多数离散选址问题写成 0-1 整数规划。常用决策变量为：
+yj={1,若在候选位置 j 建立设施,0,否则,xij={1,需求点 i 被设施 j 服务,0,否则,y_j = \begin{cases} 1, &amp; \text{若在候选位置 }j\text{ 建立设施},\\ 0, &amp; \text{否则},\end{cases} \qquad x_{ij} = \begin{cases} 1, &amp; \text{需求点 }i\text{ 被设施 }j\text{ 服务},\\ 0, &amp; \text{否则},\end{cases}yj​={1,0,​若在候选位置 j 建立设施,否则,​xij​={1,0,​需求点 i 被设施 j 服务,否则,​覆盖类问题
+覆盖类问题基于覆盖半径 RRR 的概念：若 dij≤Rd_{ij} \le Rdij​≤R，则称设施 jjj 能覆盖需求点 iii。记 N(i)={j∈J:dij≤R}N(i) = \{ j \in J : d_{ij} \le R \}N(i)={j∈J:dij​≤R} 为能覆盖需求点 iii 的候选设施集合。
+集覆盖问题（SCP）
+集覆盖问题要求所有需求点都被至少一个设施覆盖，同时最小化设施建设总成本：
+min⁡∑j∈Jfjyj\min \sum_{j \in J} f_j y_jminj∈J∑​fj​yj​s.t.∑j∈N(i)yj≥1,∀i∈I\text{s.t.} \quad \sum_{j \in N(i)} y_j \ge 1, \quad \forall i \in Is.t.j∈N(i)∑​yj​≥1,∀i∈Iyj∈{0,1},∀j∈Jy_j \in \{0,1\}, \quad \forall j \in Jyj​∈{0,1},∀j∈J它是一般集覆盖问题在选址背景下的特例，也是整个覆盖类模型的分析基础。
+最大覆盖问题（MCLP）
+当设施数量固定为 ppp 时，无法保证所有需求点都被覆盖，因此改为最大化被覆盖的需求总量。设 zi∈{0,1}z_i \in \{0,1\}zi​∈{0,1} 表示需求点 iii 是否被覆盖：
+max⁡∑i∈Iwizi\max \sum_{i \in I} w_i z_imaxi∈I∑​wi​zi​s.t.zi≤∑j∈N(i)yj,∀i∈I\text{s.t.} \quad z_i \le \sum_{j \in N(i)} y_j, \quad \forall i \in Is.t.zi​≤j∈N(i)∑​yj​,∀i∈I∑j∈Jyj=p\sum_{j \in J} y_j = pj∈J∑​yj​=pyj∈{0,1},zi∈{0,1},∀i,jy_j \in \{0,1\}, \quad z_i \in \{0,1\}, \quad \forall i, jyj​∈{0,1},zi​∈{0,1},∀i,j约束 zi≤∑j∈N(i)yjz_i \le \sum_{j \in N(i)} y_jzi​≤∑j∈N(i)​yj​ 保证了只有当某个覆盖设施被选中时，需求点才算被覆盖。
+中位类问题
+中位类问题的目标与设施个数无关地考察需求到最近设施的距离总和。
+p-中位问题（p-median）
+选择 ppp 个设施，把每个需求点分配给距离它最近的所选设施，最小化总加权分配距离：
+min⁡∑i∈I∑j∈Jwidijxij\min \sum_{i \in I} \sum_{j \in J} w_{i} d_{ij} x_{ij}mini∈I∑​j∈J∑​wi​dij​xij​s.t.∑j∈Jxij=1,∀i∈I\text{s.t.} \quad \sum_{j \in J} x_{ij} = 1, \quad \forall i \in Is.t.j∈J∑​xij​=1,∀i∈Ixij≤yj,∀i∈I,j∈Jx_{ij} \le y_j, \quad \forall i \in I, j \in Jxij​≤yj​,∀i∈I,j∈J∑j∈Jyj=p\sum_{j \in J} y_j = pj∈J∑​yj​=pyj∈{0,1},xij∈{0,1}y_j \in \{0,1\}, \quad x_{ij} \in \{0,1\}yj​∈{0,1},xij​∈{0,1}约束 ∑jxij=1\sum_j x_{ij} = 1∑j​xij​=1 保证每个需求点恰好分配一个设施，xij≤yjx_{ij} \le y_jxij​≤yj​ 保证只能分配给已建立的设施。p-中位问题在许多场景下有极强的积极性，且可借助概率吸收或积分规划高效求解。
+单设施连续选址（Weber 问题）
+当不限制候选集合，只选择一个设施的连续位置 yyy 时，问题退化为 Weber 问题：
+min⁡y∈R2  ∑i∈Iwi ∥y−ai∥\min_{y \in \mathbb{R}^2} \; \sum_{i \in I} w_{i} \, \|y - a_i\|y∈R2min​i∈I∑​wi​∥y−ai​∥其中 aia_iai​ 为需求点的坐标。该问题可用迭代的 Weiszfeld 算法（本质是一阶不动点迭代）高效求解，是连续选址分析的起点。
+中心类问题
+p-中心问题（p-center）
+与 p-中位不同，p-中心最小化的是最差情况下的服务距离，即采用 min-max 准则，常用于应急设施、医院等对最坏情形敏感的场景。设 DDD 为最大服务半径：
+min⁡D\min DminDs.t.∑j∈Jdijxij≤D,∀i∈I\text{s.t.} \quad \sum_{j \in J} d_{ij} x_{ij} \le D, \quad \forall i \in Is.t.j∈J∑​dij​xij​≤D,∀i∈I∑j∈Jxij=1,∀i∈I\sum_{j \in J} x_{ij} = 1, \quad \forall i \in Ij∈J∑​xij​=1,∀i∈Ixij≤yj,∀i∈I,j∈Jx_{ij} \le y_j, \quad \forall i \in I, j \in Jxij​≤yj​,∀i∈I,j∈J∑j∈Jyj=p\sum_{j \in J} y_j = pj∈J∑​yj​=p三个基本范式可这样对比：p-中位最小化总和、p-中心最小化最大值、覆盖问题则固定覆盖半径而要求所有点被覆盖（SCP）或尽量多地覆盖（MCLP）。
+固定设施类：UFLP 与 CFLP
+无容量设施选址（UFLP）
+当设施的固定建造成本 fjf_jfj​ 与可变动分配成本同时存在、且设施无容量限制时，得到无容量设施选址问题：
+min⁡∑j∈Jfjyj+∑i∈I∑j∈Jcijxij\min \sum_{j \in J} f_j y_j + \sum_{i \in I} \sum_{j \in J} c_{ij} x_{ij}minj∈J∑​fj​yj​+i∈I∑​j∈J∑​cij​xij​s.t.∑j∈Jxij=1,∀i∈I\text{s.t.} \quad \sum_{j \in J} x_{ij} = 1, \quad \forall i \in Is.t.j∈J∑​xij​=1,∀i∈Ixij≤yj,∀i∈I,j∈Jx_{ij} \le y_j, \quad \forall i \in I, j \in Jxij​≤yj​,∀i∈I,j∈Jyj∈{0,1},xij≥0y_j \in \{0,1\}, \quad x_{ij} \ge 0yj​∈{0,1},xij​≥0由于目标函数关于 xxx 是线性的，且可行域满足一定的整体结构，UFLP 中可以把 xijx_{ij}xij​ 松弛为连续非负变量而不改变最优值——每个需求点总会分给相邻的已选设施。
+有容量设施选址（CFLP）
+为每个设施加入容量约束 bjb_jbj​，需求点 iii 的需求量记为 aia_iai​：
+min⁡∑j∈Jfjyj+∑i∈I∑j∈Jcijxij\min \sum_{j \in J} f_j y_j + \sum_{i \in I} \sum_{j \in J} c_{ij} x_{ij}minj∈J∑​fj​yj​+i∈I∑​j∈J∑​cij​xij​s.t.∑j∈Jxij=1,∀i∈I\text{s.t.} \quad \sum_{j \in J} x_{ij} = 1, \quad \forall i \in Is.t.j∈J∑​xij​=1,∀i∈I∑i∈Iaixij≤bjyj,∀j∈J\sum_{i \in I} a_i x_{ij} \le b_j y_j, \quad \forall j \in Ji∈I∑​ai​xij​≤bj​yj​,∀j∈Jyj∈{0,1},xij≥0y_j \in \{0,1\}, \quad x_{ij} \ge 0yj​∈{0,1},xij​≥0容量约束使得问题从线性规划范畴变成典型的混合整数规划，求解难度相比 UFLP 大幅上升。
+重要变种
+动态与多期选址
+考虑规划周期的特征，设施可在多期规划中被建设、扩建或关闭。通常引入时间维的 yjty_{jt}yjt​，并将建设、持有、关闭成本与跨期需求一起纳入目标。
+随机与鲁棒选址
+当需求 wiw_iwi​ 不确定时，在随机规划框架下，第一阶段的&quot;建哪些设施&quot;决策需在观测需求之前做出（here-and-now），第二阶段的分配决策在需求实现后做出（wait-and-see），目标取需求分布的期望。鲁棒选址则用最坏情形的需求场景或区间刻画不确定性。
+枢纽选址（Hub Location）
+在航空、快递和多对多通信网络中，货物并不直达每个点对，而是经枢纽中转。Hub 问题同时决定枢纽的位置及其分配关系，且枢纽间常有换乘折扣，目标是在完全连通的网络上优化中转网络的总成本。
+多目标与公平性选址
+现实中常需在总成本与服务水平（覆盖比例、最大半径）或公平性（最大分担距离、方差）之间权衡，构成多目标选址问题，其解往往是一条 Pareto 前沿曲线。
+求解方法论概述
+
+精确方法：将经典选址问题建模为整数规划，用分支定界、分支割平面或商业求解器直接求解；对特殊结构（如覆盖问题）常配合集划分与列生成以获得线性规划松弛的下界。
+元启发式算法：当规模较大时，使用贪婪、局部搜索、禁忌搜索、模拟退火、遗传算法等求解近似最优解。
+松弛方法：对 p-中位、UFLP 等配上拉格朗日松弛或线性规划松弛，可快速得到高质量的上下界并指导分支限定。
+
+小结
+设施选址问题以覆盖、中位、中心、固定成本四大基本模型为骨架，覆盖了对服务半径、分配距离、公平性和成本的不同考量。实际工程中很少直接套用标准模型，而是在这些基本模型之上叠加容量、多期、不确定性或网络结构演化出丰富的变种。这对运筹优化、整数规划与算法设计的能力提出了综合要求，也是车辆路径、公共设施布局与供应链网络设计等周边问题的共同基石。
 ]]></content>
       <categories>
         <category>运筹优化</category>
       </categories>
       <tags>
         <tag>整数规划</tag>
-        <tag>VRP</tag>
+        <tag>设施选址</tag>
+        <tag>覆盖问题</tag>
+        <tag>p-中位问题</tag>
+        <tag>p-中心问题</tag>
       </tags>
   </entry>
 </search>
