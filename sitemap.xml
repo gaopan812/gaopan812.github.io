@@ -194,7 +194,21 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/tags/VRP/</loc>
+    <loc>https://maxinf.cn/tags/Dijkstra/</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E5%9B%BE/</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF%E9%97%AE%E9%A2%98/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -243,34 +257,6 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/tags/Dijkstra/</loc>
-    <lastmod>2026-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://maxinf.cn/tags/%E5%9B%BE/</loc>
-    <lastmod>2026-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://maxinf.cn/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF%E9%97%AE%E9%A2%98/</loc>
-    <lastmod>2026-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://maxinf.cn/tags/%E6%9C%80%E4%BC%98%E5%8C%96/</loc>
-    <lastmod>2026-08-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://maxinf.cn/tags/%E4%BA%8C%E9%98%B6%E9%94%A5%E4%BC%98%E5%8C%96/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
@@ -285,7 +271,14 @@
   </url>
   
   <url>
-    <loc>https://maxinf.cn/tags/%E5%88%97%E7%94%9F%E6%88%90/</loc>
+    <loc>https://maxinf.cn/tags/%E6%9C%80%E4%BC%98%E5%8C%96/</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/VRP/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -300,6 +293,13 @@
   
   <url>
     <loc>https://maxinf.cn/tags/ISO%E7%BC%A9%E5%86%99/</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://maxinf.cn/tags/%E5%88%97%E7%94%9F%E6%88%90/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

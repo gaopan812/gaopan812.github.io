@@ -113,98 +113,167 @@ si,k−1≤sik∀i∈V,∀k∈K∖{1}s_{i,k-1}\leq s_{ik}\quad\forall i\in V,\fo
       </tags>
   </entry>
   <entry>
-    <title>带时间窗的电动车辆路径规划问题</title>
-    <url>/2025/11/07/EVRPTW/</url>
-    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
+    <title>Dijkstra算法</title>
+    <url>/2025/11/08/DijkstraAlgorithm/</url>
+    <content><![CDATA[最近在学习车辆调度问题，精确算法求解该问题时会涉及到求最短路径，所以先复习一下图中的最短路径算法——迪杰斯特拉算法。
+迪杰斯特拉算法的全称是Dijkstra算法，由荷兰计算机科学家艾兹赫尔·迪杰斯特拉（Edsger W. Dijkstra）于1959年提出。这是一种用于解决带权图中单源最短路径问题的经典算法，适用于所有边权为非负值的图。也就是说在给定的一张图中，一个顶点到另一个顶点的路径可能有多条，最短路径指的就是顶点之间“最短”的路径。
+算法步骤
+迪杰斯特拉算法的原理是：从源点出发，依次选择距离源点最短的顶点，然后更新该顶点到其他顶点的距离。
 
-为了简化问题，我们做出了如下假设：
+创建一个距离数组dist[]，对于每个顶点v，初始化dist[v]为无穷大，但起始顶点s的距离为0
+创建一个集合S，用于存储已找到最短路径的顶点，初始为空
+循环重复以下步骤，直到所有顶点都被加入集合S：
 
-只考虑一个充电站。
-时间窗为硬时间窗。
-电动车从配送中心出发时为满电量状态。
-电动车的充电速率是线性的， 每次充电都充满。
-
-为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
-
-电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
-电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
-电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
+选择不在S中且距离值最小的顶点u
+将顶点u加入集合S
+更新顶点u的相邻顶点v的距离值：如果dist[u] + w(u,v)小于dist[v]，则更新dist[v]为dist[u] + w(u,v)
 
 
-符号
-给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
-问题建模
+当循环结束时，dist[]数组包含了从起始顶点s到所有其他顶点的最短距离
 
-决策变量：
+时间复杂度分析
+算法包括了两部分：找最小距离顶点以及松弛边的操作。现在我们把两部分加起来：
+（1）找最小距离顶点的操作
+每轮都要扫描全部VVV个顶点来找最小值。
+总共进行VVV轮（每个顶点恰好被选中一次）。
+所以这部分总时间 =V×V=O(V2)V \times V = O(V^2)V×V=O(V2)
+（2）松弛边的操作
+对每个顶点 u，我们遍历它的所有邻接边。
+所有顶点的邻接边总数 =2E2E2E（无向图）或EEE（有向图）→ 统一视为O(E)O(E)O(E)
+所以松弛总时间 =O(E)O(E)O(E)
+合并两部分：
+总时间复杂度 =O(V2+E)O(V^2 + E)O(V2+E)
+但在最坏情况下（比如完全图），边数E=O(V2)E = O(V^2)E=O(V2)，所以O(V2+E)=O(V2)O(V^2 + E) = O(V^2)O(V2+E)=O(V2)
+更重要的是：即使图很稀疏（比如E=O(V)E = O(V)E=O(V)），找最小值的操作仍然是O(V2)O(V^2)O(V2)，这部分占主导！
+因此，朴素 Dijkstra 的时间复杂度被写作O(V2)O(V^2)O(V2)，因为它由“找最小值”这一步决定，与边数关系不大。
+举个例子
+假设图有V=5V = 5V=5个顶点：
+第1轮：扫描5个点找最小 → 4次比较
+第2轮：扫描剩下4个未访问点 → 3次
+…
+第5轮：扫描1个点 → 0次
+总比较次数 =4+3+2+1=V(V−1)2=O(V2)4 + 3 + 2  + 1 = \frac{V(V-1)}{2} = O(V^2)4+3+2+1=2V(V−1)​=O(V2)
+这就是O(V2)O(V^2)O(V2)的来源！
+优化版本
+如果用最小堆（优先队列）来维护未访问节点的距离，那么：
+取最小值：O(log⁡V)O(\log V)O(logV)
+插入/更新：每次O(log⁡V)O(\log V)O(logV)，最多EEE次
+总时间变成O((V+E)log⁡V)O((V + E) \log V)O((V+E)logV)，在稀疏图（E≈VE \approx VE≈V）中远优于O(V2)O(V^2)O(V2)。
+总结
+朴素 Dijkstra 是O(V2)O(V^2)O(V2)，因为每一步都要线性扫描所有顶点来找到当前距离最小的未访问节点，共做VVV次，总计O(V2)O(V^2)O(V2)。
+最短路示例
+以共有6个顶点(0-5)的带权有向图为例, 如下图所示
 
-xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
-tit_iti​表示客户点iii的访问时间。
-uiu_iui​表示到达客户点iii的剩余容量。
+我们从顶点0开始，找到到其他所有顶点的最短路径。
+初始化
+
+距离数组dist[]：[0,∞\infty∞,∞\infty∞,∞\infty∞,∞,∞\infty, \infty∞,∞]
+集合S：{}
+
+第1步
+
+选择不在S中且距离值最短的顶点u，即顶点0，距离为0
+将顶点0加入集合S，即S = {0}
+更新顶点0的相邻顶点{1， 2}的距离值
+
+顶点1：dist[1] =min⁡(∞,0+5)=5\min(\infty, 0+5) = 5min(∞,0+5)=5
+顶点2：dist[2] =min⁡(∞,0+2)=3\min(\infty, 0+2) = 3min(∞,0+2)=3
 
 
-目标函数：最小化总行驶成本。
-min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
-约束条件：
+距离数组更新为：[0, 5, 2,∞\infty∞,∞,∞\infty, \infty∞,∞]
 
-每个客户都必须被一辆车访问一次。
-∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
-车辆必须重配送中心出发，最后返回配送中心。
-∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
-对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
-∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
-车辆的容量约束。
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆的行驶时间约束。
+第2步
 
-不存在充电过程的弧：
-包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
-ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
-存在充电过程的弧：
-当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
-ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
-其中gyigy_igyi​表示充满电的时间。
+选择不在S中且距离值最短的顶点u，即顶点2，距离为2
+将顶点2加入集合S，即S = {0, 2}
+更新顶点2的相邻顶点{1, 3}的距离值
+
+顶点1：dist[1] =min⁡(5,2+8)=5\min(5, 2+8) = 5min(5,2+8)=5(无变化)
+顶点3：dist[3] =min⁡(∞,2+7)=9\min(\infty, 2+7) = 9min(∞,2+7)=9
 
 
-行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
+距离数组更新为：[0, 5, 2, 9,∞,∞\infty, \infty∞,∞]
+
+第3步
+
+选择不在S中且距离值最短的顶点u，即顶点1，距离为5
+将顶点1加入集合S，即S = {0, 2, 1}
+更新顶点1的相邻顶点{3, 4}的距离值
+
+顶点3：dist[3] =min⁡(9,5+4)=9\min(9, 5+4) = 9min(9,5+4)=9（无变化）
+顶点4：dist[4] =min⁡(∞,5+2)=7\min(\infty, 5+2) = 7min(∞,5+2)=7
 
 
-以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
-Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
+距离数组更新为：[0, 5, 2, 9, 7,∞\infty∞]
+
+第4步
+
+选择不在S中且距离值最短的顶点u，即顶点4，距离为7
+将顶点4加入集合S，即S = {0, 2, 1, 4}
+更新顶点4的相邻顶点{5}的距离值
+
+顶点5：dist[5] =min⁡(∞,7+3)=10\min(\infty, 7+3) = 10min(∞,7+3)=10
 
 
-以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
-yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
+距离数组更新为：[0, 5, 2, 9, 7, 10]
+
+第5步
+
+选择不在S中且距离值最短的顶点u，即顶点3，距离为9
+将顶点3加入集合S，即S = {0, 2, 1, 4, 3}
+更新顶点3的相邻顶点{4, 5}的距离值
+
+顶点4：dist[4] =min⁡(7,9+6)=7\min(7, 9+6) = 7min(7,9+6)=7 （无变化）
+顶点5：dist[5] =min⁡(10,9+5)=9\min(10, 9+5) = 9min(10,9+5)=9（无变化）
 
 
+距离数组更新为：[0, 5, 2, 9, 7, 10]
 
+第6步
 
+选择不在S中且距离值最短的顶点u，即顶点5，距离为10
+将顶点5加入集合S，即S = {0, 2, 1, 4, 3, 5}
+顶点5没有邻接顶点，或所有邻接顶点都已在S中
+距离数组更新为：[0, 5, 2, 9, 7, 10]
 
+算法结束
 
-完整的EVRPTW数学模型如下：
-min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{aligned}
-\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
-\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
-&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
-&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
-&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
-&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
-&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
-&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
-&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
-&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
-&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
-&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
-&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
-\end{aligned}
-mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
+最终的距离数组为：[0, 5, 2, 9, 7, 10]
+从顶点0到顶点1、2、3、4、5的最短距离分别为5、2、9、7、10
+
+核心特性
+
+贪心策略：每次都选择当前距离最小的顶点进行处理
+单源最短路径：找出从一个源顶点到所有其他顶点的最短路径
+正权图：要求所有边的权重为非负值
+时间复杂度：使用二叉堆的优先队列实现为O(Elog⁡V)O(E\log V)O(ElogV)，其中EEE为边数，VVV为顶点数
+空间复杂度：O(V)O(V)O(V)，主要用于存储距离数组和已访问集合
+
+python实现
+import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def __init__(self):        # 图的邻接表表示，&#123;顶点: &#123;邻接顶点: 边权重&#125;&#125;        self.graph = defaultdict(dict)    # 添加顶点    def add_vertex(self, vertex):        if vertex not in self.graph:            self.graph[vertex] = &#123;&#125;    # 添加边    def add_edge(self, source, destination, weight):        if weight &lt; 0:            raise ValueError(&quot;Dijkstra算法不支持负权边&quot;)        if source not in self.graph:            self.add_vertex(source)        if destination not in self.graph:            self.add_vertex(destination)        self.graph[source][destination] = weight    # Dijkstra算法实现    def dijkstra(self, start_vertex):        if start_vertex not in self.graph:            raise ValueError(&quot;起始顶点不存在&quot;)        # 存储到各顶点的最短距离        distances = &#123;vertex: float(&#x27;inf&#x27;) for vertex in self.graph&#125;        # 存储到各顶点的前驱顶点（用于路径重建）        previous_vertices = &#123;vertex: None for vertex in self.graph&#125;        # 优先队列，用于选择距离最小的顶点        priority_queue = [(0, start_vertex)]        # 已处理的顶点集合        settled = set()        # 起始顶点到自身的距离为0        distances[start_vertex] = 0        while priority_queue and len(settled) &lt; len(self.graph):            # 获取距离最小的顶点            current_distance, current_vertex = heapq.heappop(priority_queue)            # 如果该顶点已经处理过，则跳过            if current_vertex in settled:                continue            # 标记该顶点为已处理            settled.add(current_vertex)            # 更新相邻顶点的距离            self._update_neighbors_distances(                current_vertex,                distances,                previous_vertices,                priority_queue,                settled            )        return distances, previous_vertices    # 更新相邻顶点的距离    def _update_neighbors_distances(self, current_vertex, distances, previous_vertices, priority_queue, settled):        current_distance = distances[current_vertex]        neighbors = self.graph[current_vertex]        for neighbor, edge_weight in neighbors.items():            # 如果邻居已经处理过，则跳过            if neighbor in settled:                continue            # 计算通过当前顶点到达邻居的新距离            new_distance = current_distance + edge_weight            # 如果新距离更短，则更新            if new_distance &lt; distances[neighbor]:                distances[neighbor] = new_distance                previous_vertices[neighbor] = current_vertex                heapq.heappush(priority_queue, (new_distance, neighbor))    # 重建从起始顶点到目标顶点的最短路径    def get_path(self, start_vertex, end_vertex, previous_vertices):        path = []        # 如果没有路径到达终点，返回空列表        if previous_vertices[end_vertex] is None and start_vertex != end_vertex:            return path        # 从终点回溯到起点        curr = end_vertex        while curr is not None:            path.append(curr)            curr = previous_vertices[curr]        # 反转路径，使其从起点到终点        path.reverse()        return path# 使用示例if __name__ == &quot;__main__&quot;:    dijkstra = DijkstraAlgorithm()    # 构建图（同你的代码）    dijkstra.add_edge(0, 1, 5)    dijkstra.add_edge(0, 2, 2)    dijkstra.add_edge(1, 3, 4)    dijkstra.add_edge(1, 4, 2)    dijkstra.add_edge(2, 1, 8)    dijkstra.add_edge(2, 3, 7)    dijkstra.add_edge(3, 4, 6)    dijkstra.add_edge(3, 5, 1)    dijkstra.add_edge(4, 5, 3)    start_vertex = 0    # 获取距离和前驱信息    distances, previous_vertices = dijkstra.dijkstra(start_vertex)    print(f&quot;从顶点 &#123;start_vertex&#125; 到各顶点的最短距离：&quot;)    for vertex, distance in distances.items():        print(f&quot;到顶点 &#123;vertex&#125; 的距离：&#123;distance&#125;&quot;)    # 获取具体路径（例如从 0 到 5）    end_vertex = 5    path = dijkstra.get_path(start_vertex, end_vertex, previous_vertices)    if path:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 的最短路径：&#123;&#x27; → &#x27;.join(map(str, path))&#125;&quot;)    else:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 没有路径！&quot;)
+优缺点
+优点
+
+最优解：保证找到最短路径（在没有负权边的情况下）
+适用性广：可以解决许多现实世界的最短路径问题
+效率高：使用优先队列优化后，算法效率较高
+易于理解和实现：算法思想直观，实现相对简单
+
+缺点
+
+不适用于负权边：不能处理带有负权边的图
+不能检测负权环：在有负权环的图中可能无法正常工作
+空间消耗：需要存储距离数组和优先队列，空间复杂度较高
+效率受限于优先队列实现：不同的优先队列实现会影响算法效率
+
 ]]></content>
       <categories>
-        <category>运筹优化</category>
+        <category>数据结构与算法</category>
       </categories>
       <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
+        <tag>Dijkstra</tag>
+        <tag>图</tag>
+        <tag>最短路问题</tag>
       </tags>
   </entry>
   <entry>
@@ -371,167 +440,97 @@ X^\top X \beta = X^\top y
       </tags>
   </entry>
   <entry>
-    <title>Dijkstra算法</title>
-    <url>/2025/11/08/DijkstraAlgorithm/</url>
-    <content><![CDATA[最近在学习车辆调度问题，精确算法求解该问题时会涉及到求最短路径，所以先复习一下图中的最短路径算法——迪杰斯特拉算法。
-迪杰斯特拉算法的全称是Dijkstra算法，由荷兰计算机科学家艾兹赫尔·迪杰斯特拉（Edsger W. Dijkstra）于1959年提出。这是一种用于解决带权图中单源最短路径问题的经典算法，适用于所有边权为非负值的图。也就是说在给定的一张图中，一个顶点到另一个顶点的路径可能有多条，最短路径指的就是顶点之间“最短”的路径。
-算法步骤
-迪杰斯特拉算法的原理是：从源点出发，依次选择距离源点最短的顶点，然后更新该顶点到其他顶点的距离。
+    <title>二阶锥规划示例及其对偶</title>
+    <url>/2025/04/14/SOCP_dual/</url>
+    <content><![CDATA[二阶锥规划(SOCP)
+二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
 
-创建一个距离数组dist[]，对于每个顶点v，初始化dist[v]为无穷大，但起始顶点s的距离为0
-创建一个集合S，用于存储已找到最短路径的顶点，初始为空
-循环重复以下步骤，直到所有顶点都被加入集合S：
-
-选择不在S中且距离值最小的顶点u
-将顶点u加入集合S
-更新顶点u的相邻顶点v的距离值：如果dist[u] + w(u,v)小于dist[v]，则更新dist[v]为dist[u] + w(u,v)
-
-
-当循环结束时，dist[]数组包含了从起始顶点s到所有其他顶点的最短距离
-
-时间复杂度分析
-算法包括了两部分：找最小距离顶点以及松弛边的操作。现在我们把两部分加起来：
-（1）找最小距离顶点的操作
-每轮都要扫描全部VVV个顶点来找最小值。
-总共进行VVV轮（每个顶点恰好被选中一次）。
-所以这部分总时间 =V×V=O(V2)V \times V = O(V^2)V×V=O(V2)
-（2）松弛边的操作
-对每个顶点 u，我们遍历它的所有邻接边。
-所有顶点的邻接边总数 =2E2E2E（无向图）或EEE（有向图）→ 统一视为O(E)O(E)O(E)
-所以松弛总时间 =O(E)O(E)O(E)
-合并两部分：
-总时间复杂度 =O(V2+E)O(V^2 + E)O(V2+E)
-但在最坏情况下（比如完全图），边数E=O(V2)E = O(V^2)E=O(V2)，所以O(V2+E)=O(V2)O(V^2 + E) = O(V^2)O(V2+E)=O(V2)
-更重要的是：即使图很稀疏（比如E=O(V)E = O(V)E=O(V)），找最小值的操作仍然是O(V2)O(V^2)O(V2)，这部分占主导！
-因此，朴素 Dijkstra 的时间复杂度被写作O(V2)O(V^2)O(V2)，因为它由“找最小值”这一步决定，与边数关系不大。
-举个例子
-假设图有V=5V = 5V=5个顶点：
-第1轮：扫描5个点找最小 → 4次比较
-第2轮：扫描剩下4个未访问点 → 3次
-…
-第5轮：扫描1个点 → 0次
-总比较次数 =4+3+2+1=V(V−1)2=O(V2)4 + 3 + 2  + 1 = \frac{V(V-1)}{2} = O(V^2)4+3+2+1=2V(V−1)​=O(V2)
-这就是O(V2)O(V^2)O(V2)的来源！
-优化版本
-如果用最小堆（优先队列）来维护未访问节点的距离，那么：
-取最小值：O(log⁡V)O(\log V)O(logV)
-插入/更新：每次O(log⁡V)O(\log V)O(logV)，最多EEE次
-总时间变成O((V+E)log⁡V)O((V + E) \log V)O((V+E)logV)，在稀疏图（E≈VE \approx VE≈V）中远优于O(V2)O(V^2)O(V2)。
-总结
-朴素 Dijkstra 是O(V2)O(V^2)O(V2)，因为每一步都要线性扫描所有顶点来找到当前距离最小的未访问节点，共做VVV次，总计O(V2)O(V^2)O(V2)。
-最短路示例
-以共有6个顶点(0-5)的带权有向图为例, 如下图所示
-
-我们从顶点0开始，找到到其他所有顶点的最短路径。
-初始化
-
-距离数组dist[]：[0,∞\infty∞,∞\infty∞,∞\infty∞,∞,∞\infty, \infty∞,∞]
-集合S：{}
-
-第1步
-
-选择不在S中且距离值最短的顶点u，即顶点0，距离为0
-将顶点0加入集合S，即S = {0}
-更新顶点0的相邻顶点{1， 2}的距离值
-
-顶点1：dist[1] =min⁡(∞,0+5)=5\min(\infty, 0+5) = 5min(∞,0+5)=5
-顶点2：dist[2] =min⁡(∞,0+2)=3\min(\infty, 0+2) = 3min(∞,0+2)=3
-
-
-距离数组更新为：[0, 5, 2,∞\infty∞,∞,∞\infty, \infty∞,∞]
-
-第2步
-
-选择不在S中且距离值最短的顶点u，即顶点2，距离为2
-将顶点2加入集合S，即S = {0, 2}
-更新顶点2的相邻顶点{1, 3}的距离值
-
-顶点1：dist[1] =min⁡(5,2+8)=5\min(5, 2+8) = 5min(5,2+8)=5(无变化)
-顶点3：dist[3] =min⁡(∞,2+7)=9\min(\infty, 2+7) = 9min(∞,2+7)=9
-
-
-距离数组更新为：[0, 5, 2, 9,∞,∞\infty, \infty∞,∞]
-
-第3步
-
-选择不在S中且距离值最短的顶点u，即顶点1，距离为5
-将顶点1加入集合S，即S = {0, 2, 1}
-更新顶点1的相邻顶点{3, 4}的距离值
-
-顶点3：dist[3] =min⁡(9,5+4)=9\min(9, 5+4) = 9min(9,5+4)=9（无变化）
-顶点4：dist[4] =min⁡(∞,5+2)=7\min(\infty, 5+2) = 7min(∞,5+2)=7
-
-
-距离数组更新为：[0, 5, 2, 9, 7,∞\infty∞]
-
-第4步
-
-选择不在S中且距离值最短的顶点u，即顶点4，距离为7
-将顶点4加入集合S，即S = {0, 2, 1, 4}
-更新顶点4的相邻顶点{5}的距离值
-
-顶点5：dist[5] =min⁡(∞,7+3)=10\min(\infty, 7+3) = 10min(∞,7+3)=10
-
-
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-第5步
-
-选择不在S中且距离值最短的顶点u，即顶点3，距离为9
-将顶点3加入集合S，即S = {0, 2, 1, 4, 3}
-更新顶点3的相邻顶点{4, 5}的距离值
-
-顶点4：dist[4] =min⁡(7,9+6)=7\min(7, 9+6) = 7min(7,9+6)=7 （无变化）
-顶点5：dist[5] =min⁡(10,9+5)=9\min(10, 9+5) = 9min(10,9+5)=9（无变化）
-
-
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-第6步
-
-选择不在S中且距离值最短的顶点u，即顶点5，距离为10
-将顶点5加入集合S，即S = {0, 2, 1, 4, 3, 5}
-顶点5没有邻接顶点，或所有邻接顶点都已在S中
-距离数组更新为：[0, 5, 2, 9, 7, 10]
-
-算法结束
-
-最终的距离数组为：[0, 5, 2, 9, 7, 10]
-从顶点0到顶点1、2、3、4、5的最短距离分别为5、2、9、7、10
-
-核心特性
-
-贪心策略：每次都选择当前距离最小的顶点进行处理
-单源最短路径：找出从一个源顶点到所有其他顶点的最短路径
-正权图：要求所有边的权重为非负值
-时间复杂度：使用二叉堆的优先队列实现为O(Elog⁡V)O(E\log V)O(ElogV)，其中EEE为边数，VVV为顶点数
-空间复杂度：O(V)O(V)O(V)，主要用于存储距离数组和已访问集合
-
-python实现
-import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def __init__(self):        # 图的邻接表表示，&#123;顶点: &#123;邻接顶点: 边权重&#125;&#125;        self.graph = defaultdict(dict)    # 添加顶点    def add_vertex(self, vertex):        if vertex not in self.graph:            self.graph[vertex] = &#123;&#125;    # 添加边    def add_edge(self, source, destination, weight):        if weight &lt; 0:            raise ValueError(&quot;Dijkstra算法不支持负权边&quot;)        if source not in self.graph:            self.add_vertex(source)        if destination not in self.graph:            self.add_vertex(destination)        self.graph[source][destination] = weight    # Dijkstra算法实现    def dijkstra(self, start_vertex):        if start_vertex not in self.graph:            raise ValueError(&quot;起始顶点不存在&quot;)        # 存储到各顶点的最短距离        distances = &#123;vertex: float(&#x27;inf&#x27;) for vertex in self.graph&#125;        # 存储到各顶点的前驱顶点（用于路径重建）        previous_vertices = &#123;vertex: None for vertex in self.graph&#125;        # 优先队列，用于选择距离最小的顶点        priority_queue = [(0, start_vertex)]        # 已处理的顶点集合        settled = set()        # 起始顶点到自身的距离为0        distances[start_vertex] = 0        while priority_queue and len(settled) &lt; len(self.graph):            # 获取距离最小的顶点            current_distance, current_vertex = heapq.heappop(priority_queue)            # 如果该顶点已经处理过，则跳过            if current_vertex in settled:                continue            # 标记该顶点为已处理            settled.add(current_vertex)            # 更新相邻顶点的距离            self._update_neighbors_distances(                current_vertex,                distances,                previous_vertices,                priority_queue,                settled            )        return distances, previous_vertices    # 更新相邻顶点的距离    def _update_neighbors_distances(self, current_vertex, distances, previous_vertices, priority_queue, settled):        current_distance = distances[current_vertex]        neighbors = self.graph[current_vertex]        for neighbor, edge_weight in neighbors.items():            # 如果邻居已经处理过，则跳过            if neighbor in settled:                continue            # 计算通过当前顶点到达邻居的新距离            new_distance = current_distance + edge_weight            # 如果新距离更短，则更新            if new_distance &lt; distances[neighbor]:                distances[neighbor] = new_distance                previous_vertices[neighbor] = current_vertex                heapq.heappush(priority_queue, (new_distance, neighbor))    # 重建从起始顶点到目标顶点的最短路径    def get_path(self, start_vertex, end_vertex, previous_vertices):        path = []        # 如果没有路径到达终点，返回空列表        if previous_vertices[end_vertex] is None and start_vertex != end_vertex:            return path        # 从终点回溯到起点        curr = end_vertex        while curr is not None:            path.append(curr)            curr = previous_vertices[curr]        # 反转路径，使其从起点到终点        path.reverse()        return path# 使用示例if __name__ == &quot;__main__&quot;:    dijkstra = DijkstraAlgorithm()    # 构建图（同你的代码）    dijkstra.add_edge(0, 1, 5)    dijkstra.add_edge(0, 2, 2)    dijkstra.add_edge(1, 3, 4)    dijkstra.add_edge(1, 4, 2)    dijkstra.add_edge(2, 1, 8)    dijkstra.add_edge(2, 3, 7)    dijkstra.add_edge(3, 4, 6)    dijkstra.add_edge(3, 5, 1)    dijkstra.add_edge(4, 5, 3)    start_vertex = 0    # 获取距离和前驱信息    distances, previous_vertices = dijkstra.dijkstra(start_vertex)    print(f&quot;从顶点 &#123;start_vertex&#125; 到各顶点的最短距离：&quot;)    for vertex, distance in distances.items():        print(f&quot;到顶点 &#123;vertex&#125; 的距离：&#123;distance&#125;&quot;)    # 获取具体路径（例如从 0 到 5）    end_vertex = 5    path = dijkstra.get_path(start_vertex, end_vertex, previous_vertices)    if path:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 的最短路径：&#123;&#x27; → &#x27;.join(map(str, path))&#125;&quot;)    else:        print(f&quot;\n从 &#123;start_vertex&#125; 到 &#123;end_vertex&#125; 没有路径！&quot;)
-优缺点
-优点
-
-最优解：保证找到最短路径（在没有负权边的情况下）
-适用性广：可以解决许多现实世界的最短路径问题
-效率高：使用优先队列优化后，算法效率较高
-易于理解和实现：算法思想直观，实现相对简单
-
-缺点
-
-不适用于负权边：不能处理带有负权边的图
-不能检测负权环：在有负权环的图中可能无法正常工作
-空间消耗：需要存储距离数组和优先队列，空间复杂度较高
-效率受限于优先队列实现：不同的优先队列实现会影响算法效率
-
+SOCP的原始和对偶问题
+SOCP的原始问题为：
+min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
+\end{array}
+mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
+其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
+对偶问题为：
+max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
+\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
+其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
+证明:
+令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
+min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
+&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
+&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
+\end{array}
+mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
+引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
+L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
+L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
+&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
+&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
+\end{aligned}
+L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
+原始问题的极小极大表示为：
+p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
+p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
+那么对偶问题的极大极小表示为：
+d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
+d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
+针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
+f−∑i=1mAi⊤−∑i=1muici=0,
+\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
+f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
+该问题才有下界。
+针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
+min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
+\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
+ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
+当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
+因此，SOCP的对偶问题等价于：
+max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
+\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
+&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
+令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
+示例
+基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
+min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
+&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
+\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
+其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
+不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
+通过对偶转换可以得到RC的可处理形式:
+min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
+Python实现求解
+CVXPY库可以直接求解SOCP。
+import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
+求解结果如下：
+status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
 ]]></content>
       <categories>
-        <category>数据结构与算法</category>
+        <category>最优化</category>
       </categories>
       <tags>
-        <tag>Dijkstra</tag>
-        <tag>图</tag>
-        <tag>最短路问题</tag>
+        <tag>二阶锥优化</tag>
+        <tag>SOCP</tag>
       </tags>
   </entry>
   <entry>
@@ -576,7 +575,7 @@ f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
 f(x∗)&lt;f(x),∀x∈N,x=x∗,
 则称 x∗x^*x∗ 为严格局部最小值点。
 
-.itsecpinkrtd{}
+.hfhcouioodzt{}
 
 
 
@@ -798,14 +797,14 @@ pk​=−∇f(xk​).
 
 
 
-.baysfbepvjnt{}  
+.okuxrvdfbmer{}  
 
 - 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
 
 但在困难问题上，其收敛速度可能极其缓慢。
 
 
-.skhmdjrfffma{}
+.onnmdtuhysgq{}
 
 
 ]]></content>
@@ -814,6 +813,130 @@ pk​=−∇f(xk​).
       </categories>
       <tags>
         <tag>最优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
+    <url>/2025/11/07/VRPTW/</url>
+    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
+
+问题数学描述
+假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
+模型定义
+决策变量
+
+xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
+ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
+ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
+
+目标函数
+最小化总的行驶成本：
+min⁡∑i,j∈Acijxij
+\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
+mini,j∈A∑​cij​xij​
+约束
+
+离开客户的车辆数目必须为1：
+∑j∈Vxij=1,∀i∈C
+\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
+j∈V∑​xij​=1,∀i∈C
+进出入车厂的数量必须相等, 车厂的流平衡约束：
+∑j∈Vxoj−∑i∈Vxid=0
+\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
+j∈V∑​xoj​−i∈V∑​xid​=0
+进出入客户的车的数量必须相等，客户点的流平衡约束：
+∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
+i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
+车辆的容量约束， (MTZ子回路消除)：
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆行驶时间约束：
+ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
+客户时间窗约束：
+ai≤ti≤bi,∀i∈V
+a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
+ai​≤ti​≤bi​,∀i∈V
+车辆容量约束：
+0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
+完整的VRPTW的数学优化模型如下：
+min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{align}
+\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
+\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
+          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
+          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
+          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
+          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
+          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
+\end{align}
+mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
+
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+
+Transportation Research 系列 ISO 缩写一览表
+
+
+
+期刊全称
+ISO 标准缩写
+
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
       </tags>
   </entry>
   <entry>
@@ -839,7 +962,7 @@ Optimization
 
 优化的过程
 
-.dineootssjli{}
+.dyxiexqkqbwj{}
 
 
 
@@ -1432,7 +1555,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.npdfjsnjncqn{}
+.bdbeqidvopat{}
 
 
 
@@ -1476,7 +1599,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.ycebjlcydvjx{}
+.olcpjtgkkley{}
 
 
 
@@ -1497,7 +1620,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.ymoefhwtityx{}
+.jdpqteimrkhk{}
 
 
 
@@ -1536,13 +1659,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .bflbddxqyxeo{}
+  .vsfnhxuvcegm{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.bccvwmhghkcq{}
+.oypuntetkhoo{}
 
 
 
@@ -1571,7 +1694,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.njpchmnobogm{}
+.feaqxstjycfr{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1594,7 +1717,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.jguwjiwgpelb{}
+.jhoxopbnrsbb{}
 
 
 
@@ -1603,7 +1726,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.wsvegmfqyzha{}
+.bqutlndagglk{}
 
 
 
@@ -1611,7 +1734,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.snwepagbmnyg{}
+.dlffzavqcunb{}
 
 
 
@@ -1793,7 +1916,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.nvxrgptxbafm{}
+.xtejmxwxxpoa{}
 
 
 
@@ -1820,7 +1943,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.mfkqfgdcobkj{}
+.ixhgnepbwsne{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1837,7 +1960,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.fcsusnpkidjm{}
+.cvcrcdeoxcse{}
 
 
 
@@ -2030,166 +2153,6 @@ f(x∗)&lt;f(x),∀x∈S 且 x=x∗,
       </categories>
       <tags>
         <tag>最优化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>二阶锥规划示例及其对偶</title>
-    <url>/2025/04/14/SOCP_dual/</url>
-    <content><![CDATA[二阶锥规划(SOCP)
-二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
-
-SOCP的原始和对偶问题
-SOCP的原始问题为：
-min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
-\end{array}
-mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
-其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
-对偶问题为：
-max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
-\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
-其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
-证明:
-令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
-min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
-&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
-&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
-\end{array}
-mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
-引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
-L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
-L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
-&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
-&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
-\end{aligned}
-L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
-原始问题的极小极大表示为：
-p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
-p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
-那么对偶问题的极大极小表示为：
-d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
-d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
-针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
-f−∑i=1mAi⊤−∑i=1muici=0,
-\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
-f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
-该问题才有下界。
-针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
-min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
-\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
-ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
-当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
-因此，SOCP的对偶问题等价于：
-max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
-\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
-&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
-令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
-示例
-基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
-min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
-&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
-\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
-其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
-不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
-通过对偶转换可以得到RC的可处理形式:
-min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
-Python实现求解
-CVXPY库可以直接求解SOCP。
-import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
-求解结果如下：
-status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>二阶锥优化</tag>
-        <tag>SOCP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
-    <url>/2025/11/07/VRPTW/</url>
-    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
-
-问题数学描述
-假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
-模型定义
-决策变量
-
-xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
-ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
-ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
-
-目标函数
-最小化总的行驶成本：
-min⁡∑i,j∈Acijxij
-\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
-mini,j∈A∑​cij​xij​
-约束
-
-离开客户的车辆数目必须为1：
-∑j∈Vxij=1,∀i∈C
-\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
-j∈V∑​xij​=1,∀i∈C
-进出入车厂的数量必须相等, 车厂的流平衡约束：
-∑j∈Vxoj−∑i∈Vxid=0
-\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
-j∈V∑​xoj​−i∈V∑​xid​=0
-进出入客户的车的数量必须相等，客户点的流平衡约束：
-∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
-i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
-车辆的容量约束， (MTZ子回路消除)：
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆行驶时间约束：
-ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
-客户时间窗约束：
-ai≤ti≤bi,∀i∈V
-a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
-ai​≤ti​≤bi​,∀i∈V
-车辆容量约束：
-0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
-完整的VRPTW的数学优化模型如下：
-min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{align}
-\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
-\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
-          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
-          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
-          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
-          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
-          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
-\end{align}
-mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
-
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
       </tags>
   </entry>
   <entry>
@@ -2416,61 +2379,98 @@ column generation的建模方式求解速度快，但求解结果不一定准确
       </tags>
   </entry>
   <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+    <title>带时间窗的电动车辆路径规划问题</title>
+    <url>/2025/11/07/EVRPTW/</url>
+    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
 
-Transportation Research 系列 ISO 缩写一览表
+为了简化问题，我们做出了如下假设：
 
+只考虑一个充电站。
+时间窗为硬时间窗。
+电动车从配送中心出发时为满电量状态。
+电动车的充电速率是线性的， 每次充电都充满。
 
+为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
 
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
+电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
+电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
+电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
 
 
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
+符号
+给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
+问题建模
+
+决策变量：
+
+xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
+tit_iti​表示客户点iii的访问时间。
+uiu_iui​表示到达客户点iii的剩余容量。
 
 
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
+目标函数：最小化总行驶成本。
+min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
+约束条件：
+
+每个客户都必须被一辆车访问一次。
+∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
+车辆必须重配送中心出发，最后返回配送中心。
+∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
+对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
+∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
+车辆的容量约束。
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆的行驶时间约束。
+
+不存在充电过程的弧：
+包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
+ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
+存在充电过程的弧：
+当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
+ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
+其中gyigy_igyi​表示充满电的时间。
 
 
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
+行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
 
 
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
+以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
+Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
+
+
+以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
+yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
 
 
 
 
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
 
 
+完整的EVRPTW数学模型如下：
+min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{aligned}
+\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
+\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
+&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
+&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
+&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
+&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
+&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
+&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
+&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
+&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
+&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
+&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
+&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
+\end{aligned}
+mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
 ]]></content>
       <categories>
-        <category>论文写作</category>
+        <category>运筹优化</category>
       </categories>
       <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
       </tags>
   </entry>
   <entry>
