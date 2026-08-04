@@ -1,118 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>资源受限的基本最短路问题</title>
-    <url>/2025/11/06/ESSPRC/</url>
-    <content><![CDATA[在使用列生成算法求解带时间窗限制的车辆路径规划问题时，定价子问题是一个资源受限的基本最短路问题（Elementary Shortest Path Problem with Resource Constraints，ESSPRC）。在文献中[^1]证明了ESSPRC问题是强NPNPNP难的，因此针对大规模的问题，使用求解器求解速度较慢。
-
-问题描述
-有一辆容量为QQQ的货车，从起点ooo出发，为途中的客户送货，最后到达终点ddd， 货车在配送时需要满足时间和容量的限制。假设有mmm个客户，这些客户分布在不同的地点, 客户用集合CCC表示，C={1,2,…,m}C = \{1, 2, \ldots, m\}C={1,2,…,m}。每个客户iii有不同的服务时间窗[ai,bi][a_i, b_i][ai​,bi​]和需求量qiq_iqi​。本问题考虑的是硬时间窗，也就是说给客户iii的服务时间必须落在时间窗 [ai,bi][a_i, b_i][ai​,bi​]内。将起点ooo记作0，终点ddd设为m+1m+1m+1，则所有的节点用集合VVV表示，V={0,1,2,…,m+1}V = \{0, 1, 2, \ldots, m+1\}V={0,1,2,…,m+1}。从节点iii到节点jjj的运输时间为tijt_ijti​j, 运输成本为cijc_ijci​j。问题的目标是，在货车容量不超载，每个客户最多被访问一次且服务开始时刻落在相应的服务时间窗内的情况下，最小化运输总成本。
-数学模型
-主要参考的是 Column Generation 书[^2]中的第三章，引用 Brian Kallehauge 等人提出的模型：
-
-变量：
-
-
-$x_{ij} =
-\begin{cases}
-1, &amp; \text{如果最短路径中包含弧 } (i,j) \in V \times V \
-0, &amp; \text{否则}
-\end{cases}$
-
-
-sis_isi​: 到达点 i∈Vi\in Vi∈V 的时刻
-
-
-
-目标函数：最小化运输总成本
-min⁡∑i∈V∑j∈Vcijxij\min\quad\sum_{i\in V}\sum_{j\in V}c_{ij}x_{ij}mini∈V∑​j∈V∑​cij​xij​
-约束条件：
-
-容量约束，规定总运输量不能超过货车容量。
-∑i∈Cqi∑j∈Vxij≤Q\sum_{i\in C}q_i\sum_{j\in V}x_{ij}\leq Qi∈C∑​qi​j∈V∑​xij​≤Q
-从起点出发只能一次。
-∑j∈Vx0j=1\sum_{j\in V}x_{0j}=1j∈V∑​x0j​=1
-到达终点只能一次。
-∑i∈Vxi,m+1=1\sum_{i\in V}x_{i,m+1}=1i∈V∑​xi,m+1​=1
-客户节点之间的流平衡约束。
-∑i∈Vxih=∑i∈Vxhj∀h∈C\sum_{i\in V}x_{ih}=\sum_{i\in V}x_{hj}\quad\forall h\in Ci∈V∑​xih​=i∈V∑​xhj​∀h∈C
-硬时间窗约束。
-ai≤si≤bi∀i∈Va_i\leq s_i\leq b_i\quad\forall i\in Vai​≤si​≤bi​∀i∈V
-车辆的行驶时间约束，也实现了子回路消除功能。
-si+tij≤sj+Mij(1−xij)∀i∈V,∀j∈Vs_i+t_{ij}\leq s_j+M_{ij}(1-x_{ij})\quad\forall i\in V,\forall j\in Vsi​+tij​≤sj​+Mij​(1−xij​)∀i∈V,∀j∈V
-变量值域。
-xij∈{0,1}∀i∈V,∀j∈Vx_{ij}\in\{0,1\}\quad\forall i\in V,\forall j\in Vxij​∈{0,1}∀i∈V,∀j∈V
-任何节点都不能是自己的前继节点或者后继节点。
-xii=0∀i∈Vx_{ii}=0\quad\forall i\in Vxii​=0∀i∈V
-补充： MijM_{ij}Mij​的取值，满足足够大但是尽量小，可以设为(bi−aj+tij)+ ∀i∈V,∀j∈V(b_i-a_j+t_{ij})^+\:\forall i\in V,\forall j\in V(bi​−aj​+tij​)+∀i∈V,∀j∈V。
-
-
-
-ESPPRC的松弛
-由于ESPPRC是强NPNPNP难问题，在求解时通常会松弛问题中的某些约束。其中，应用非常广泛的就是允许路径中存在子回路，即允许客户被多次访问。如此，问题就变成了资源受限最短路问题（SPPRC）。
-数学模型
-基于前面介绍过的ESPPRC的模型，Brian Kallehauge 等人对SPPRC也给出了如下数学模型：
-在模型中定义了一个额外的集合K={1,2,…,∣K∣}K= \{1, 2, \ldots, |K|\}K={1,2,…,∣K∣}，用来表示路径中弧的顺序。由于每个客户都可以多次访问，所以无法确定最后求得的路径中包含几条弧，但是路径所包含的弧的个数的上限∣K∣|K|∣K∣是可以确定的。路径中弧的数量受限于容量资源和时间资源，所以∣K∣=min⁡{⌊Qmin⁡i∈V{qi}⌋,⌊bm+1min⁡(i,j)∈V×V{tij}⌋}|K|=\min\{\lfloor\frac{Q}{\min_{i\in V}\{q_i\}}\rfloor,\lfloor\frac{b_{m+1}}{\min_{(i,j)\in V\times V}\{t_{ij}\}}\rfloor\}∣K∣=min{⌊mini∈V​{qi​}Q​⌋,⌊min(i,j)∈V×V​{tij​}bm+1​​⌋}。
-需要注意的是，虽然在SPPRC中，每个客户允许被多次访问，但是，起点和终点在路径中还是只能出现一次。
-
-变量：
-
-
-xijk={1,如果路径中的第 k∈K 条弧是 (i,j)∈V×V0,否则x_{ijk}=\begin{cases}1,&amp;\text{如果路径中的第 }k\in K\text{ 条弧是 }(i,j)\in V\times V\\0,&amp;\text{否则}&amp;\end{cases}xijk​={1,0,​如果路径中的第 k∈K 条弧是 (i,j)∈V×V否则​​
-
-
-siks_{ik}sik​: 第k∈Kk\in Kk∈K条弧上到达点i∈Vi\in Vi∈V的时刻
-
-
-
-目标函数：最小化运输总成本
-min⁡∑i∈V∑j∈V∑k∈Kcijxijk\min\quad\sum_{i\in V}\sum_{j\in V}\sum_{k\in K}c_{ij}x_{ijk}mini∈V∑​j∈V∑​k∈K∑​cij​xijk​
-约束条件：
-
-路径中的弧必须按序连续出现：若第 kkk 条弧在路径中（k≥2k \geq 2k≥2），则第 k−1k-1k−1 条弧也必在路径中。
-∑i∈V∑j∈Vxijk≤∑i∈V∑j∈Vxi,j,k−1∀k∈K∖{1}\sum_{i\in V}\sum_{j\in V}x_{ijk}\leq\sum_{i\in V}\sum_{j\in V}x_{i,j,k-1}\quad\forall k\in K\setminus\{1\}i∈V∑​j∈V∑​xijk​≤i∈V∑​j∈V∑​xi,j,k−1​∀k∈K∖{1}
-容量约束，规定总运输量不能超过货车容量。
-∑i∈Cqi∑j∈V∑k∈Kxijk≤Q\sum_{i\in C}q_i\sum_{j\in V}\sum_{k\in K}x_{ijk}\leq Qi∈C∑​qi​j∈V∑​k∈K∑​xijk​≤Q
-从起点出发只能一次。
-∑j∈V∑k∈Kx0jk=1\sum_{j\in V}\sum_{k\in K}x_{0jk}=1j∈V∑​k∈K∑​x0jk​=1
-起始节点为0的弧必须是路径中的第一条弧。
-∑j∈Vx0j1=1\sum_{j\in V}x_{0j1} = 1j∈V∑​x0j1​=1
-流平衡约束，规定对于每个客户节点来说，在第 (k−1)∈K∖{1}(k-1)\in K\setminus\{1\}(k−1)∈K∖{1} 条弧的入度等于在第k∈K∖{1}k\in K\setminus\{1\}k∈K∖{1}条弧上的出度。
-∑i∈Vxih,k−1=∑j∈Vxhjk∀h∈C,∀k∈K∖{1}\sum_{i\in V}x_{ih,k-1}=\sum_{j\in V}x_{hjk}\quad\forall h\in C,\forall k\in K\setminus\{1\}i∈V∑​xih,k−1​=j∈V∑​xhjk​∀h∈C,∀k∈K∖{1}
-到达终点只能一次。
-∑i∈V∑k∈Kxi,m+1,k=1\sum_{i\in V}\sum_{k\in K}x_{i,m+1,k}=1i∈V∑​k∈K∑​xi,m+1,k​=1
-硬时间窗约束。
-ai≤sik≤bi∀i∈V,∀k∈Ka_i\leq s_{ik}\leq b_i\quad\forall i\in V,\forall k\in Kai​≤sik​≤bi​∀i∈V,∀k∈K
-车辆的行驶时间约束。
-sik+tij≤sjk+Mij(1−xijk)∀i∈V,∀j∈V,∀k∈Ks_{ik}+t_{ij}\leq s_{jk}+M_{ij}(1-x_{ijk})\quad\forall i\in V,\forall j\in V,\forall k\in Ksik​+tij​≤sjk​+Mij​(1−xijk​)∀i∈V,∀j∈V,∀k∈K
-变量值域。
-xijk∈{0,1}∀i∈V,∀j∈V,∀k∈Kx_{ijk}\in\{0,1\}\quad\forall i\in V,\forall j\in V,\forall k\in Kxijk​∈{0,1}∀i∈V,∀j∈V,∀k∈K
-任何节点都不能是自己的前继或者后继节点。
-xiik=0∀i∈V,∀k∈Kx_{iik}=0\quad\forall i\in V,\forall k\in Kxiik​=0∀i∈V,∀k∈K
-不能存在两条下标（index）一样的弧。
-∑i∈v∑j∈Vxijk≤1∀k∈K\sum_{i\in v}\sum_{j\in V}x_{ijk}\leq1\quad\forall k\in Ki∈v∑​j∈V∑​xijk​≤1∀k∈K
-节点m+1m+1m+1不能有后继节点。
-∑i∈V∑k∈Kxm+1,j,k=0\sum_{i\in V}\sum_{k\in K}x_{m+1,j,k}=0i∈V∑​k∈K∑​xm+1,j,k​=0
-节点0不能有前继节点。
-∑i∈V∑k∈Kxi0k=0\sum_{i\in V}\sum_{k\in K}x_{i0k}=0i∈V∑​k∈K∑​xi0k​=0
-服务开始时刻必须是单调递增的。
-si,k−1≤sik∀i∈V,∀k∈K∖{1}s_{i,k-1}\leq s_{ik}\quad\forall i\in V,\forall k\in K\setminus\{1\}si,k−1​≤sik​∀i∈V,∀k∈K∖{1}
-
-
-
-[^1]: Desrochers, M., Desrosiers, J., and Solomon, M. (1992). A new optimization algorithm for the vehicle routing problem with time windows. Operations Research, 40:342-354.
-[^2]: Desaulniers, Guy, Jacques Desrosiers, and Marius M. Solomon, eds. Column generation. Vol. 5. Springer Science &amp; Business Media, 2006.
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>动态规划</tag>
-        <tag>标签算法</tag>
-        <tag>整数规划</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Dijkstra算法</title>
     <url>/2025/11/08/DijkstraAlgorithm/</url>
     <content><![CDATA[最近在学习车辆调度问题，精确算法求解该问题时会涉及到求最短路径，所以先复习一下图中的最短路径算法——迪杰斯特拉算法。
@@ -274,6 +162,436 @@ import heapqfrom collections import defaultdictclass DijkstraAlgorithm:    def _
         <tag>Dijkstra</tag>
         <tag>图</tag>
         <tag>最短路问题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>带时间窗的电动车辆路径规划问题</title>
+    <url>/2025/11/07/EVRPTW/</url>
+    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
+
+为了简化问题，我们做出了如下假设：
+
+只考虑一个充电站。
+时间窗为硬时间窗。
+电动车从配送中心出发时为满电量状态。
+电动车的充电速率是线性的， 每次充电都充满。
+
+为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
+
+电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
+电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
+电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
+
+
+符号
+给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
+问题建模
+
+决策变量：
+
+xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
+tit_iti​表示客户点iii的访问时间。
+uiu_iui​表示到达客户点iii的剩余容量。
+
+
+目标函数：最小化总行驶成本。
+min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
+约束条件：
+
+每个客户都必须被一辆车访问一次。
+∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
+车辆必须重配送中心出发，最后返回配送中心。
+∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
+对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
+∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
+车辆的容量约束。
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆的行驶时间约束。
+
+不存在充电过程的弧：
+包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
+ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
+存在充电过程的弧：
+当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
+ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
+其中gyigy_igyi​表示充满电的时间。
+
+
+行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
+
+
+以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
+Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
+
+
+以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
+yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
+
+
+
+
+
+
+完整的EVRPTW数学模型如下：
+min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{aligned}
+\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
+\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
+&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
+&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
+&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
+&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
+&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
+&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
+&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
+&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
+&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
+&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
+&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
+\end{aligned}
+mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>资源受限的基本最短路问题</title>
+    <url>/2025/11/06/ESSPRC/</url>
+    <content><![CDATA[在使用列生成算法求解带时间窗限制的车辆路径规划问题时，定价子问题是一个资源受限的基本最短路问题（Elementary Shortest Path Problem with Resource Constraints，ESSPRC）。在文献中[^1]证明了ESSPRC问题是强NPNPNP难的，因此针对大规模的问题，使用求解器求解速度较慢。
+
+问题描述
+有一辆容量为QQQ的货车，从起点ooo出发，为途中的客户送货，最后到达终点ddd， 货车在配送时需要满足时间和容量的限制。假设有mmm个客户，这些客户分布在不同的地点, 客户用集合CCC表示，C={1,2,…,m}C = \{1, 2, \ldots, m\}C={1,2,…,m}。每个客户iii有不同的服务时间窗[ai,bi][a_i, b_i][ai​,bi​]和需求量qiq_iqi​。本问题考虑的是硬时间窗，也就是说给客户iii的服务时间必须落在时间窗 [ai,bi][a_i, b_i][ai​,bi​]内。将起点ooo记作0，终点ddd设为m+1m+1m+1，则所有的节点用集合VVV表示，V={0,1,2,…,m+1}V = \{0, 1, 2, \ldots, m+1\}V={0,1,2,…,m+1}。从节点iii到节点jjj的运输时间为tijt_ijti​j, 运输成本为cijc_ijci​j。问题的目标是，在货车容量不超载，每个客户最多被访问一次且服务开始时刻落在相应的服务时间窗内的情况下，最小化运输总成本。
+数学模型
+主要参考的是 Column Generation 书[^2]中的第三章，引用 Brian Kallehauge 等人提出的模型：
+
+变量：
+
+
+$x_{ij} =
+\begin{cases}
+1, &amp; \text{如果最短路径中包含弧 } (i,j) \in V \times V \
+0, &amp; \text{否则}
+\end{cases}$
+
+
+sis_isi​: 到达点 i∈Vi\in Vi∈V 的时刻
+
+
+
+目标函数：最小化运输总成本
+min⁡∑i∈V∑j∈Vcijxij\min\quad\sum_{i\in V}\sum_{j\in V}c_{ij}x_{ij}mini∈V∑​j∈V∑​cij​xij​
+约束条件：
+
+容量约束，规定总运输量不能超过货车容量。
+∑i∈Cqi∑j∈Vxij≤Q\sum_{i\in C}q_i\sum_{j\in V}x_{ij}\leq Qi∈C∑​qi​j∈V∑​xij​≤Q
+从起点出发只能一次。
+∑j∈Vx0j=1\sum_{j\in V}x_{0j}=1j∈V∑​x0j​=1
+到达终点只能一次。
+∑i∈Vxi,m+1=1\sum_{i\in V}x_{i,m+1}=1i∈V∑​xi,m+1​=1
+客户节点之间的流平衡约束。
+∑i∈Vxih=∑i∈Vxhj∀h∈C\sum_{i\in V}x_{ih}=\sum_{i\in V}x_{hj}\quad\forall h\in Ci∈V∑​xih​=i∈V∑​xhj​∀h∈C
+硬时间窗约束。
+ai≤si≤bi∀i∈Va_i\leq s_i\leq b_i\quad\forall i\in Vai​≤si​≤bi​∀i∈V
+车辆的行驶时间约束，也实现了子回路消除功能。
+si+tij≤sj+Mij(1−xij)∀i∈V,∀j∈Vs_i+t_{ij}\leq s_j+M_{ij}(1-x_{ij})\quad\forall i\in V,\forall j\in Vsi​+tij​≤sj​+Mij​(1−xij​)∀i∈V,∀j∈V
+变量值域。
+xij∈{0,1}∀i∈V,∀j∈Vx_{ij}\in\{0,1\}\quad\forall i\in V,\forall j\in Vxij​∈{0,1}∀i∈V,∀j∈V
+任何节点都不能是自己的前继节点或者后继节点。
+xii=0∀i∈Vx_{ii}=0\quad\forall i\in Vxii​=0∀i∈V
+补充： MijM_{ij}Mij​的取值，满足足够大但是尽量小，可以设为(bi−aj+tij)+ ∀i∈V,∀j∈V(b_i-a_j+t_{ij})^+\:\forall i\in V,\forall j\in V(bi​−aj​+tij​)+∀i∈V,∀j∈V。
+
+
+
+ESPPRC的松弛
+由于ESPPRC是强NPNPNP难问题，在求解时通常会松弛问题中的某些约束。其中，应用非常广泛的就是允许路径中存在子回路，即允许客户被多次访问。如此，问题就变成了资源受限最短路问题（SPPRC）。
+数学模型
+基于前面介绍过的ESPPRC的模型，Brian Kallehauge 等人对SPPRC也给出了如下数学模型：
+在模型中定义了一个额外的集合K={1,2,…,∣K∣}K= \{1, 2, \ldots, |K|\}K={1,2,…,∣K∣}，用来表示路径中弧的顺序。由于每个客户都可以多次访问，所以无法确定最后求得的路径中包含几条弧，但是路径所包含的弧的个数的上限∣K∣|K|∣K∣是可以确定的。路径中弧的数量受限于容量资源和时间资源，所以∣K∣=min⁡{⌊Qmin⁡i∈V{qi}⌋,⌊bm+1min⁡(i,j)∈V×V{tij}⌋}|K|=\min\{\lfloor\frac{Q}{\min_{i\in V}\{q_i\}}\rfloor,\lfloor\frac{b_{m+1}}{\min_{(i,j)\in V\times V}\{t_{ij}\}}\rfloor\}∣K∣=min{⌊mini∈V​{qi​}Q​⌋,⌊min(i,j)∈V×V​{tij​}bm+1​​⌋}。
+需要注意的是，虽然在SPPRC中，每个客户允许被多次访问，但是，起点和终点在路径中还是只能出现一次。
+
+变量：
+
+
+xijk={1,如果路径中的第 k∈K 条弧是 (i,j)∈V×V0,否则x_{ijk}=\begin{cases}1,&amp;\text{如果路径中的第 }k\in K\text{ 条弧是 }(i,j)\in V\times V\\0,&amp;\text{否则}&amp;\end{cases}xijk​={1,0,​如果路径中的第 k∈K 条弧是 (i,j)∈V×V否则​​
+
+
+siks_{ik}sik​: 第k∈Kk\in Kk∈K条弧上到达点i∈Vi\in Vi∈V的时刻
+
+
+
+目标函数：最小化运输总成本
+min⁡∑i∈V∑j∈V∑k∈Kcijxijk\min\quad\sum_{i\in V}\sum_{j\in V}\sum_{k\in K}c_{ij}x_{ijk}mini∈V∑​j∈V∑​k∈K∑​cij​xijk​
+约束条件：
+
+路径中的弧必须按序连续出现：若第 kkk 条弧在路径中（k≥2k \geq 2k≥2），则第 k−1k-1k−1 条弧也必在路径中。
+∑i∈V∑j∈Vxijk≤∑i∈V∑j∈Vxi,j,k−1∀k∈K∖{1}\sum_{i\in V}\sum_{j\in V}x_{ijk}\leq\sum_{i\in V}\sum_{j\in V}x_{i,j,k-1}\quad\forall k\in K\setminus\{1\}i∈V∑​j∈V∑​xijk​≤i∈V∑​j∈V∑​xi,j,k−1​∀k∈K∖{1}
+容量约束，规定总运输量不能超过货车容量。
+∑i∈Cqi∑j∈V∑k∈Kxijk≤Q\sum_{i\in C}q_i\sum_{j\in V}\sum_{k\in K}x_{ijk}\leq Qi∈C∑​qi​j∈V∑​k∈K∑​xijk​≤Q
+从起点出发只能一次。
+∑j∈V∑k∈Kx0jk=1\sum_{j\in V}\sum_{k\in K}x_{0jk}=1j∈V∑​k∈K∑​x0jk​=1
+起始节点为0的弧必须是路径中的第一条弧。
+∑j∈Vx0j1=1\sum_{j\in V}x_{0j1} = 1j∈V∑​x0j1​=1
+流平衡约束，规定对于每个客户节点来说，在第 (k−1)∈K∖{1}(k-1)\in K\setminus\{1\}(k−1)∈K∖{1} 条弧的入度等于在第k∈K∖{1}k\in K\setminus\{1\}k∈K∖{1}条弧上的出度。
+∑i∈Vxih,k−1=∑j∈Vxhjk∀h∈C,∀k∈K∖{1}\sum_{i\in V}x_{ih,k-1}=\sum_{j\in V}x_{hjk}\quad\forall h\in C,\forall k\in K\setminus\{1\}i∈V∑​xih,k−1​=j∈V∑​xhjk​∀h∈C,∀k∈K∖{1}
+到达终点只能一次。
+∑i∈V∑k∈Kxi,m+1,k=1\sum_{i\in V}\sum_{k\in K}x_{i,m+1,k}=1i∈V∑​k∈K∑​xi,m+1,k​=1
+硬时间窗约束。
+ai≤sik≤bi∀i∈V,∀k∈Ka_i\leq s_{ik}\leq b_i\quad\forall i\in V,\forall k\in Kai​≤sik​≤bi​∀i∈V,∀k∈K
+车辆的行驶时间约束。
+sik+tij≤sjk+Mij(1−xijk)∀i∈V,∀j∈V,∀k∈Ks_{ik}+t_{ij}\leq s_{jk}+M_{ij}(1-x_{ijk})\quad\forall i\in V,\forall j\in V,\forall k\in Ksik​+tij​≤sjk​+Mij​(1−xijk​)∀i∈V,∀j∈V,∀k∈K
+变量值域。
+xijk∈{0,1}∀i∈V,∀j∈V,∀k∈Kx_{ijk}\in\{0,1\}\quad\forall i\in V,\forall j\in V,\forall k\in Kxijk​∈{0,1}∀i∈V,∀j∈V,∀k∈K
+任何节点都不能是自己的前继或者后继节点。
+xiik=0∀i∈V,∀k∈Kx_{iik}=0\quad\forall i\in V,\forall k\in Kxiik​=0∀i∈V,∀k∈K
+不能存在两条下标（index）一样的弧。
+∑i∈v∑j∈Vxijk≤1∀k∈K\sum_{i\in v}\sum_{j\in V}x_{ijk}\leq1\quad\forall k\in Ki∈v∑​j∈V∑​xijk​≤1∀k∈K
+节点m+1m+1m+1不能有后继节点。
+∑i∈V∑k∈Kxm+1,j,k=0\sum_{i\in V}\sum_{k\in K}x_{m+1,j,k}=0i∈V∑​k∈K∑​xm+1,j,k​=0
+节点0不能有前继节点。
+∑i∈V∑k∈Kxi0k=0\sum_{i\in V}\sum_{k\in K}x_{i0k}=0i∈V∑​k∈K∑​xi0k​=0
+服务开始时刻必须是单调递增的。
+si,k−1≤sik∀i∈V,∀k∈K∖{1}s_{i,k-1}\leq s_{ik}\quad\forall i\in V,\forall k\in K\setminus\{1\}si,k−1​≤sik​∀i∈V,∀k∈K∖{1}
+
+
+
+[^1]: Desrochers, M., Desrosiers, J., and Solomon, M. (1992). A new optimization algorithm for the vehicle routing problem with time windows. Operations Research, 40:342-354.
+[^2]: Desaulniers, Guy, Jacques Desrosiers, and Marius M. Solomon, eds. Column generation. Vol. 5. Springer Science &amp; Business Media, 2006.
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>动态规划</tag>
+        <tag>标签算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>无人机与卡车联合配送问题建模（FSTSP）</title>
+    <url>/2026/08/04/FSTSP/</url>
+    <content><![CDATA[随着电商与即时物流的快速发展，&quot;最后一公里&quot;配送成本通常占到整个供应链成本的 25%–40%，是降本增效的关键环节。地面卡车受道路网络与交通状况约束，而无人机具有空中直线飞行、不受地面道路限制、速度快等优势，但受续航、载重与法规限制。将两者结合：卡车作为&quot;移动基站&quot;携带无人机，沿路径在合适的节点起飞与收回无人机，由无人机负责那些对卡车而言&quot;绕路严重&quot;的客户，从而在不大幅增加车辆数量的前提下提升配送效率。
+这种&quot;卡车 + 无人机&quot;协同配送问题最早由 Murray 和 Chu (2015) 以 Flying Sidekick Traveling Salesman Problem（FSTSP） 的形式提出，其核心决策有三：①确定卡车的行驶路径与客户服务顺序；②确定每个客户由卡车还是无人机服务；③确定无人机各架次（sortie）的起飞点与收回点。本文给出该问题的混合整数规划（MIP）模型。
+
+问题描述
+考虑一个配送场景：区域内有一个车场（配送中心）、若干个客户，以及一辆同时携带一架无人机的卡车。车场派出卡车，卡车沿路径依次访问客户；无人机可以在卡车到达的任意节点（含车场）起飞，直线飞行至某个客户完成配送后，飞回卡车路径上的某个后续节点被收回，与卡车继续前行。目标是设计卡车路径与无人机各架次，使完成全部客户配送的总时间最小，即最小化卡车返回车场的时刻（makespan）。
+下图展示了一个 FSTSP 示例：卡车从车场出发，依次访问客户 1、2、3 后返回车场；在客户 1 处无人机起飞，配送客户 4 后，在客户 3 处被收回。
+
+基本假设
+为便于建模，作如下假设：
+
+一辆卡车携带一架无人机。卡车负责运输无人机与部分包裹，其路径为从车场出发、最终返回车场的闭合回路。
+无人机单次架次只服务一个客户（单件包裹载荷），服务完毕后须飞回卡车所在节点被收回。
+无人机只能在卡车到达的节点（含车场）起飞与收回；起飞、收回过程需要一定时间，并入服务时间处理。
+无人机沿欧氏距离直线飞行，不受道路网络约束；飞行时间与距离成正比，且单次架次从起飞到收回的总时长不超过续航 eee。
+每个客户恰好被服务一次，服务时间固定：卡车服务一个客户需 sts_tst​，无人机服务一个客户需 sds_dsd​。
+同一节点不同时作为起飞点和收回点。
+
+符号
+决策变量：
+
+xij∈{0,1}x_{ij}\in\{0, 1\}xij​∈{0,1}：卡车的路径决策，xij=1x_{ij}=1xij​=1 表示卡车行驶弧 (i,j)(i,j)(i,j)，xij=0x_{ij}=0xij​=0 表示不行驶；
+yijk∈{0,1}y_{ijk}\in\{0, 1\}yijk​∈{0,1}：无人机的飞行路径决策，yijk=1y_{ijk}=1yijk​=1 表示无人机从节点 iii 起飞，服务客户 jjj，并在节点 kkk 收回，yijk=0y_{ijk}=0yijk​=0 表示不执行该飞行路径， 无人机的起飞点、回收点与访问节点必须不相同，即 i≠j≠ki\neq j\neq ki=j=k；
+ti∈Rt_i\in\mathbb{R}ti​∈R：卡车到达节点 iii 的时间；
+ti′∈Rt&#x27;_i\in\mathbb{R}ti′​∈R：无人机到达节点 iii 的时间；
+ui∈Z+u_i\in\mathbb{Z}^+ui​∈Z+：为了消除子环路而引入的辅助变量： 表示第 iii 个客户点被访问的次序；
+pij∈{0,1}p_{ij}\in\{0, 1\}pij​∈{0,1}：辅助决策变量， 如果卡车在路径上先访问了节点iii，再访问节点jjj，则 pij=1p_{ij}=1pij​=1，否则 pij=0p_{ij}=0pij​=0， 该变量是为了确保无人机访问点的先后顺序和卡车是一致的。
+
+参数：
+
+ccc：客户的总数；
+C={1,2,…,c}\mathcal{C}=\{1,2,\ldots,c\}C={1,2,…,c}：全部客户的编号集合；
+C′⊊C\mathcal{C}&#x27;\subsetneq \mathcal{C}C′⊊C：无人机可以服务的客户子集；
+N={0,1,…,c+1}\mathcal{N}=\{0,1,\ldots,c+1\}N={0,1,…,c+1}：网络中所有节点的集合，其中 000 为车场，111 到 ccc 为客户，c+1c+1c+1 为返回车场的复制点；
+N0={0,1,…,c}\mathcal{N}_0=\{0,1,\ldots,c\}N0​={0,1,…,c}：卡车可以离开的节点集合；
+N+={1,…,c+1}\mathcal{N}_+=\{1,\ldots,c+1\}N+​={1,…,c+1}：卡车在行驶过程中可以到达的节点集合；
+τij\tau_{ij}τij​: 卡车从点 iii 到点 jjj 的行驶时间；
+τij′\tau&#x27;_{ij}τij′​: 无人机从点 iii 到点 jjj 的飞行时间；
+SLS_LSL​: 无人机起飞所需的准备时间；
+SRS_RSR​: 无人机回收所需的收回时间；
+eee: 无人机的飞行能力或者续航能力(以时间为单位)；
+P={(i,j,k)∣∀i∈N0, j∈C′, k∈N+}\mathcal{P}=\{(i,j,k) | \forall i\in\mathcal{N}_0,\ j\in\mathcal{C}&#x27;,\ k\in\mathcal{N}_+\}P={(i,j,k)∣∀i∈N0​, j∈C′, k∈N+​}：无人机路径的三元组集合，其中 iii 是起飞点，jjj 是服务的客户，kkk 是收回点;
+MMM: 充分大的正数。
+
+数学模型
+目标函数
+最小化卡车或无人机返回仓库的最晚时间，即完成最小化全部配送的总时间：
+min⁡ tc+1\min\ t_{c+1}min tc+1​约束条件
+（1）卡车路径约束：卡车路径约束的主要作用是保证规划的路径是一个闭合的环路。
+∑i∈N0i≠jxij+∑i∈N0i≠j∑k∈N+(i,j,k)∈Pyijk=1,∀j∈C(1)
+\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} x_{ij} 
++ 
+\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} 
+\sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} = 1, 
+\quad \forall j \in \mathcal{C} \tag{1}
+i∈N0​i=j​∑​xij​+i∈N0​i=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​=1,∀j∈C(1)
+∑j∈N+x0j=1(2)
+\sum_{j \in \mathcal{N}_+} x_{0j} = 1 \tag{2}
+j∈N+​∑​x0j​=1(2)∑i∈N0xi,c+1=1(3)
+\sum_{i \in \mathcal{N}_0} x_{i, c+1} = 1 \tag{3}
+i∈N0​∑​xi,c+1​=1(3)ui−uj+1−(c+2)(1−xij)≤0,∀i∈C,  j∈N+:i≠j(4)
+u_i - u_j + 1 - (c+2)(1 - x_{ij}) \leq 0, 
+\quad \forall i \in \mathcal{C}, \; j \in \mathcal{N}_+ : i \neq j \tag{4}
+ui​−uj​+1−(c+2)(1−xij​)≤0,∀i∈C,j∈N+​:i=j(4)1≤ui≤c+2,∀i∈N+(5)
+1 \leq u_i \leq c+2, \quad \forall i \in \mathcal{N}_+ \tag{5}
+1≤ui​≤c+2,∀i∈N+​(5)∑i∈N0i≠jxij=∑k∈N+k≠jxjk,∀j∈C(6)
+\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} x_{ij} 
+= 
+\sum_{\substack{k \in \mathcal{N}_+ \\ k \neq j}} x_{jk}, 
+\quad \forall j \in \mathcal{C} \tag{6}
+i∈N0​i=j​∑​xij​=k∈N+​k=j​∑​xjk​,∀j∈C(6)各个约束式的含义如下。约束式(1)确保每个客户只被访问一次（无人机和卡车加起来访问一次）。约束式(2)保证卡车一定从仓库出发一次。约束式(3)保证卡车最终必须到达终点一次。约束式(4)为子环路消除约束。约束式(5)限定了访问顺序决策变量uiu_iui​的取值范围。约束式（6）为卡车的路径流平衡约束。
+（2）无人机路径约束：无人机的路径约束旨在确保无人机的飞行路径符合实际操作要求。
+∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk≤1,∀i∈N0(7)
+\sum_{\substack{j \in \mathcal{C} \\ i \neq j}} 
+\sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \leq 1, 
+\quad \forall i \in \mathcal{N}_0 \tag{7}
+j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​≤1,∀i∈N0​(7)
+∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk≤1,∀k∈N+(8)
+\sum_{\substack{i \in \mathcal{N}_0  \\ i \neq k}} 
+\sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \leq 1, 
+\quad \forall k \in \mathcal{N}_+ \tag{8}
+i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​≤1,∀k∈N+​(8)2yijk≤∑h∈N0h≠ixhi+∑l∈Cl≠kxlk,∀i∈C,  j∈{C:i≠j},  k∈{N+:(i,j,k)∈P}(9)
+2y_{ijk} \leq 
+\sum_{\substack{h \in \mathcal{N}_0 \\ h \neq i}} x_{hi} 
++ 
+\sum_{\substack{l \in \mathcal{C} \\ l \neq k}} x_{lk}, 
+\quad 
+\forall i \in \mathcal{C}, \; 
+j \in \{\mathcal{C} : i \neq j\}, \; 
+k \in \{\mathcal{N}_+ : (i,j,k) \in \mathcal{P}\} \tag{9}
+2yijk​≤h∈N0​h=i​∑​xhi​+l∈Cl=k​∑​xlk​,∀i∈C,j∈{C:i=j},k∈{N+​:(i,j,k)∈P}(9)y0jk≤∑h∈N0h≠kxhk,∀j∈C,  k∈{N+:(0,j,k)∈P}(10)
+y_{0jk} \leq 
+\sum_{\substack{h \in \mathcal{N}_0 \\ h \neq k}} x_{hk}, 
+\quad 
+\forall j \in \mathcal{C}, \; 
+k \in \{\mathcal{N}_+ : (0,j,k) \in \mathcal{P}\} \tag{10}
+y0jk​≤h∈N0​h=k​∑​xhk​,∀j∈C,k∈{N+​:(0,j,k)∈P}(10)uk−ui−1+(c+2)(1−∑j∈C(i,j,k)∈Pyijk)≥0,∀i∈C,  k∈{N+:k≠i}(11)
+u_k - u_i - 1 + (c+2)
+\left(
+1 - 
+\sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk}
+\right) \geq 0, 
+\quad 
+\forall i \in \mathcal{C}, \; 
+k \in \{\mathcal{N}_+ : k \neq i\} \tag{11}
+uk​−ui​−1+(c+2)​1−j∈C(i,j,k)∈P​∑​yijk​​≥0,∀i∈C,k∈{N+​:k=i}(11)各个约束式的含义如下。约束式(7)和约束式(8)限制了无人机至多可以从特定点（包括仓库）起飞或者回收一次。约束式(9)表示如果无人机从iii点起飞，且在kkk点被回收，则卡车必须访问iii点和kkk点。约束式(10)表示如果无人机从起点起飞并在飞点被回收，则卡车必须访问kkk点。约束式(11)表示如果无人机从iii点起飞，且在kkk点被回收，则卡车必须在访问kkk点之前就访问iii点。
+（3）卡车与无人机配合约束：卡车和无人机的配合约束是为了保证无人机和卡车在时间和空间上的一致性。具体约束如下：
+ti′≥ti−M(1−∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk),∀i∈C(12)
+t_{i}^{\prime} \geq t_{i} - M \left( 1 - 
+\sum_{\substack{j \in \mathcal{C} \\ i \neq j}} 
+\sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} 
+\right), 
+\quad \forall i \in \mathcal{C} \tag{12}
+ti′​≥ti​−M​1−j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​​,∀i∈C(12)ti′≤ti+M(1−∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk),∀i∈C(13)
+t_{i}^{\prime} \leq t_{i} + M \left( 1 - 
+\sum_{\substack{j \in \mathcal{C} \\ i \neq j}} 
+\sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} 
+\right), 
+\quad \forall i \in \mathcal{C} \tag{13}
+ti′​≤ti​+M​1−j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​​,∀i∈C(13)tk′≥tk−M(1−∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk),∀k∈N+(14)
+t_{k}^{\prime} \geq t_{k} - M \left( 1 - 
+\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} 
+\sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk} 
+\right), 
+\quad \forall k \in \mathcal{N}_+ \tag{14}
+tk′​≥tk​−M​1−i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​,∀k∈N+​(14)tk′≤tk+M(1−∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk),∀k∈N+(15)
+t_{k}^{\prime} \leq t_{k} + M \left( 1 - 
+\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} 
+\sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk} 
+\right), 
+\quad \forall k \in \mathcal{N}_+ \tag{15}
+tk′​≤tk​+M​1−i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​,∀k∈N+​(15)各个约束式的含义如下。约束式(12)和约束式(13)表示如果卡车司机要在iii点放飞无人机，则无人机和卡车一定是同时到达iii点的，即ti′=tit&#x27;_i = t_iti′​=ti​。约束式(14)和约束式(15)表示如果卡车司机要在kkk点回收无人机，则无人机和卡车必须同时到达kkk点，即tk′=tkt&#x27;_k = t_ktk′​=tk​。
+（4）访问时间约束：访问时间约束旨在决策卡车和无人机访问每个客户点的时间，并保证访问先后顺序和到达客户点的时间的一致性。具体约束如下：
+tk≥th+τhk+sL(∑l∈Ck≠l∑m∈N+(k,l,m)∈Pyklm)+sR(∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk)−M(1−xhk),∀h∈N0,  k∈{N+:k≠h}(16)
+t_k \geq t_h + \tau_{hk} + s_L \left( \sum_{\substack{l \in \mathcal{C} \\ k \neq l}} \sum_{\substack{m \in \mathcal{N}_+ \\ (k,l,m) \in \mathcal{P}}} y_{klm} \right) + s_R \left( \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \right) - M(1 - x_{hk}), \quad \forall h \in \mathcal{N}_0, \; k \in \{\mathcal{N}_+ : k \neq h\} \tag{16}
+tk​≥th​+τhk​+sL​​l∈Ck=l​∑​m∈N+​(k,l,m)∈P​∑​yklm​​+sR​​i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​−M(1−xhk​),∀h∈N0​,k∈{N+​:k=h}(16)tj′≥ti′+τij′−M(1−∑k∈N+(i,j,k)∈Pyijk),∀j∈C′,  i∈{N0:i≠j}(17)
+
+t_j&#x27; \geq t_i&#x27; + \tau_{ij}&#x27; - M \left( 1 - \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \right), \quad \forall j \in \mathcal{C}&#x27;, \; i \in \{\mathcal{N}_0 : i \neq j\} \tag{17}
+tj′​≥ti′​+τij′​−M​1−k∈N+​(i,j,k)∈P​∑​yijk​​,∀j∈C′,i∈{N0​:i=j}(17)tk′≥tj′+τjk′+sR−M(1−∑i∈N0(i,j,k)∈Pyijk),∀j∈C′,  k∈{N+:k≠j}(18)
+t_k&#x27; \geq t_j&#x27; + \tau_{jk}&#x27; + s_R - M \left( 1 - \sum_{\substack{i \in \mathcal{N}_0 \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \right), \quad \forall j \in \mathcal{C}&#x27;, \; k \in \{\mathcal{N}_+ : k \neq j\} \tag{18}
+tk′​≥tj′​+τjk′​+sR​−M​1−i∈N0​(i,j,k)∈P​∑​yijk​​,∀j∈C′,k∈{N+​:k=j}(18)tk′−(tj′−τij′)≤e+M(1−yijk),∀k∈N+,  j∈{C:j≠k},  i∈{N0:(i,j,k)∈P}(19)
+t_k&#x27; - (t_j&#x27; - \tau_{ij}&#x27;) \leq e + M(1 - y_{ijk}), \quad \forall k \in \mathcal{N}_+, \; j \in \{\mathcal{C} : j \neq k\}, \; i \in \{\mathcal{N}_0 : (i,j,k) \in \mathcal{P}\} \tag{19}
+tk′​−(tj′​−τij′​)≤e+M(1−yijk​),∀k∈N+​,j∈{C:j=k},i∈{N0​:(i,j,k)∈P}(19)tl′≥tk′−M(3−∑j∈C(i,j,k)∈Pl≠jyijk−∑m∈Cm≠i,k,l∑n∈N+(l,m,n)∈P,n≠i,kylmn−pil),∀i∈N0,  k∈{N+:k≠i},  l∈{C:l≠i,  l≠k}(20)
+t_l&#x27; \geq t_k&#x27; - M \left( 3 - \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P} \\ l \neq j}} y_{ijk} - \sum_{\substack{m \in \mathcal{C} \\ m \neq i, k, l}} \sum_{\substack{n \in \mathcal{N}_+ \\ (l,m,n) \in \mathcal{P}, n \neq i, k}} y_{lmn} - p_{il} \right), \quad \forall i \in \mathcal{N}_0, \; k \in \{\mathcal{N}_+ : k \neq i\}, \; l \in \{\mathcal{C} : l \neq i, \; l \neq k\} \tag{20}
+tl′​≥tk′​−M​3−j∈C(i,j,k)∈Pl=j​∑​yijk​−m∈Cm=i,k,l​∑​n∈N+​(l,m,n)∈P,n=i,k​∑​ylmn​−pil​​,∀i∈N0​,k∈{N+​:k=i},l∈{C:l=i,l=k}(20)各个约束式的含义如下。约束式(16)表示如果卡车经过弧(h，k)(h，k)(h，k)，则到达hhh点的时间，加上弧(h，k)(h，k)(h，k)上的行驶时间，再加上卡车放飞和回收无人机的时间，小于等于卡车于kkk点开始服务的时间。约束式(17)表示无人机访问客户的时间和起飞时间之间的数量先后关系。约束式(18)表示无人机到达回收点处的时间先后关系。约束式(19)表示无人机单次配送来回的总飞行时间不得超过其续航时间。约束式(20)保证了前后两次放飞无人机的时间先后关系。如果卡车经过弧(i,l)(i,l)(i,l)，在iii点放飞无人机，在kkk点回收无人机，之后在lll点再次放飞无人机，则无人机到达k点k点k点的时间必须小于等于其到达lll点的时间。简单来讲就是无人机被放飞后必须首先回收，然后才能再次放飞。
+（5）子回路消除约束：防止出现不经过车场的子回路。uiu_iui​和pijp_{ij}pij​描述卡车访问的点的顺序，它们的取值与被无人机访问的点无关
+ui−uj−1+(c+2)pij≥0,∀i∈C,  j∈{C:i≠j}(21)
+u_i - u_j - 1 + (c+2)p_{ij} \geq 0, \quad \forall i \in \mathcal{C}, \; j \in \{\mathcal{C} : i \neq j\} \tag{21}
+ui​−uj​−1+(c+2)pij​≥0,∀i∈C,j∈{C:i=j}(21)
+ui−uj+1−(c+2)(1−pij)≤0,∀i∈C,  j∈{C:i≠j}(22)
+u_i - u_j + 1 - (c+2)(1 - p_{ij}) \leq 0, \quad \forall i \in \mathcal{C}, \; j \in \{\mathcal{C} : i \neq j\} \tag{22}
+ui​−uj​+1−(c+2)(1−pij​)≤0,∀i∈C,j∈{C:i=j}(22)pij+pji=1,∀i∈C,  j∈{C:i≠j}(23)
+p_{ij} + p_{ji} = 1, \quad \forall i \in \mathcal{C}, \; j \in \{\mathcal{C} : i \neq j\} \tag{23}
+pij​+pji​=1,∀i∈C,j∈{C:i=j}(23)（6）初始条件：初始条件设置如下：
+t0=0,(24)
+t_0 = 0, \tag{24}
+t0​=0,(24)
+t0′=0,(25)
+t&#x27;_0 = 0, \tag{25}
+t0′​=0,(25)p0j=1,∀j∈C(26)
+p_{0j} = 1, \forall j \in \mathcal{C} \tag{26}
+p0j​=1,∀j∈C(26)完整模型
+将上述各部分汇总如下：
+Minimizetc+1Subject to∑i∈N0i≠jxij+∑i∈N0i≠j∑k∈N+(i,j,k)∈Pyijk=1,∀j∈C∑j∈N+x0j=1∑i∈N0xi,c+1=1ui−uj+1−(c+2)(1−xij)≤0,∀{i∈C,  j∈N+:i≠j}1≤ui≤c+2,∀i∈N+∑i∈N0i≠jxij=∑k∈N+k≠jxjk,∀j∈C∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk≤1,∀i∈N0∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk≤1,∀k∈N+2yijk≤∑h∈N0h≠ixhi+∑l∈Cl≠kxlk,∀{i∈C,  j∈C,  k∈N+:(i,j,k)∈P}y0jk≤∑h∈N0h≠kxhk,∀{j∈C,  k∈N+:(0,j,k)∈P}uk−ui−1+(c+2)(1−∑j∈C(i,j,k)∈Pyijk)≥0,∀{i∈C,  k∈N+:k≠i}ti′≥ti−M(1−∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk),∀i∈Cti′≤ti+M(1−∑j∈Ci≠j∑k∈N+(i,j,k)∈Pyijk),∀i∈Ctk′≥tk−M(1−∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk),∀k∈N+tk′≤tk+M(1−∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk),∀k∈N+tk≥th+τhk+sL(∑l∈Ck≠l∑m∈N+(k,l,m)∈Pyklm)+sR(∑i∈N0i≠k∑j∈C(i,j,k)∈Pyijk)−M(1−xhk),∀{h∈N0,  k∈N+:k≠h}tj′≥ti′+τij′−M(1−∑k∈N+(i,j,k)∈Pyijk),∀{i∈N0,  j∈C:i≠j}tk′≥tj′+τjk′+sR−M(1−∑i∈N0(i,j,k)∈Pyijk),∀{j∈C,  k∈N+:k≠j}tk′−(tj′−τij′)≤e+M(1−yijk),∀{i∈N0,  j∈C,  k∈N+:(i,j,k)∈P}tl′≥tk′−M(3−∑j∈C(i,j,k)∈Pl≠jyijk−∑m∈Cm≠i,k,l∑n∈N+(l,m,n)∈P,n≠i,kylmn−pil),∀{i∈N0,  k∈N+:k≠i,  l∈C:l≠i,  l≠k}ui−uj−1+(c+2)pij≥0,∀{i∈C,  j∈C:i≠j}ui−uj+1−(c+2)(1−pij)≤0,∀{i∈C,  j∈C:i≠j}pij+pji=1,∀{i∈C,  j∈C:i≠j}t0=0t0′=0p0j=1,∀j∈Cxij∈{0,1},∀{i∈N0,  j∈N+:i≠j}yijk∈{0,1},∀(i,j,k)∈Ppij∈{0,1},∀{i∈C,  j∈C:i≠j}ui∈Z+,∀i∈N+ti≥0,  ti′≥0,∀i∈N0∪C∪N+
+\begin{aligned}
+\text{Minimize} \quad &amp; t_{c+1} \\
+\text{Subject to} \quad
+&amp; \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} x_{ij} + \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} = 1, &amp;&amp; \forall j \in \mathcal{C} \\
+&amp; \sum_{j \in \mathcal{N}_+} x_{0j} = 1 \\
+&amp; \sum_{i \in \mathcal{N}_0} x_{i, c+1} = 1 \\
+&amp; u_i - u_j + 1 - (c+2)(1 - x_{ij}) \leq 0, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{N}_+ : i \neq j\} \\
+&amp; 1 \leq u_i \leq c+2, &amp;&amp; \forall i \in \mathcal{N}_+ \\
+&amp; \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq j}} x_{ij} = \sum_{\substack{k \in \mathcal{N}_+ \\ k \neq j}} x_{jk}, &amp;&amp; \forall j \in \mathcal{C} \\
+&amp; \sum_{\substack{j \in \mathcal{C} \\ i \neq j}} \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \leq 1, &amp;&amp; \forall i \in \mathcal{N}_0 \\
+&amp; \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk} \leq 1, &amp;&amp; \forall k \in \mathcal{N}_+ \\
+&amp; 2y_{ijk} \leq \sum_{\substack{h \in \mathcal{N}_0 \\ h \neq i}} x_{hi} + \sum_{\substack{l \in \mathcal{C} \\ l \neq k}} x_{lk}, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{C}, \; k \in \mathcal{N}_+ : (i,j,k) \in \mathcal{P}\} \\
+&amp; y_{0jk} \leq \sum_{\substack{h \in \mathcal{N}_0 \\ h \neq k}} x_{hk}, &amp;&amp; \forall \{j \in \mathcal{C}, \; k \in \mathcal{N}_+ : (0,j,k) \in \mathcal{P}\} \\
+&amp; u_k - u_i - 1 + (c+2)\left(1 - \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right) \geq 0, &amp;&amp; \forall \{i \in \mathcal{C}, \; k \in \mathcal{N}_+ : k \neq i\} \\
+&amp; t_{i}^{\prime} \geq t_{i} - M\left(1 - \sum_{\substack{j \in \mathcal{C} \\ i \neq j}} \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall i \in \mathcal{C} \\
+&amp; t_{i}^{\prime} \leq t_{i} + M\left(1 - \sum_{\substack{j \in \mathcal{C} \\ i \neq j}} \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall i \in \mathcal{C} \\
+&amp; t_{k}^{\prime} \geq t_{k} - M\left(1 - \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall k \in \mathcal{N}_+ \\
+&amp; t_{k}^{\prime} \leq t_{k} + M\left(1 - \sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall k \in \mathcal{N}_+ \\
+&amp; t_k \geq t_h + \tau_{hk} + s_L\left(\sum_{\substack{l \in \mathcal{C} \\ k \neq l}} \sum_{\substack{m \in \mathcal{N}_+ \\ (k,l,m) \in \mathcal{P}}} y_{klm}\right) + s_R\left(\sum_{\substack{i \in \mathcal{N}_0 \\ i \neq k}} \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right) - M(1 - x_{hk}), &amp;&amp; \forall \{h \in \mathcal{N}_0, \; k \in \mathcal{N}_+ : k \neq h\} \\
+&amp; t_j&#x27; \geq t_i&#x27; + \tau_{ij}&#x27; - M\left(1 - \sum_{\substack{k \in \mathcal{N}_+ \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall \{i \in \mathcal{N}_0, \; j \in \mathcal{C} : i \neq j\} \\
+&amp; t_k&#x27; \geq t_j&#x27; + \tau_{jk}&#x27; + s_R - M\left(1 - \sum_{\substack{i \in \mathcal{N}_0 \\ (i,j,k) \in \mathcal{P}}} y_{ijk}\right), &amp;&amp; \forall \{j \in \mathcal{C}, \; k \in \mathcal{N}_+ : k \neq j\} \\
+&amp; t_k&#x27; - (t_j&#x27; - \tau_{ij}&#x27;) \leq e + M(1 - y_{ijk}), &amp;&amp; \forall \{i \in \mathcal{N}_0, \; j \in \mathcal{C}, \; k \in \mathcal{N}_+ : (i,j,k) \in \mathcal{P}\} \\
+&amp; t_l&#x27; \geq t_k&#x27; - M\left(3 - \sum_{\substack{j \in \mathcal{C} \\ (i,j,k) \in \mathcal{P} \\ l \neq j}} y_{ijk} - \sum_{\substack{m \in \mathcal{C} \\ m \neq i, k, l}} \sum_{\substack{n \in \mathcal{N}_+ \\ (l,m,n) \in \mathcal{P}, n \neq i, k}} y_{lmn} - p_{il}\right), &amp;&amp; \forall \{i \in \mathcal{N}_0, \; k \in \mathcal{N}_+ : k \neq i, \; l \in \mathcal{C} : l \neq i, \; l \neq k\} \\
+&amp; u_i - u_j - 1 + (c+2)p_{ij} \geq 0, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{C} : i \neq j\} \\
+&amp; u_i - u_j + 1 - (c+2)(1 - p_{ij}) \leq 0, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{C} : i \neq j\} \\
+&amp; p_{ij} + p_{ji} = 1, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{C} : i \neq j\} \\
+&amp; t_0 = 0 \\
+&amp; t&#x27;_0 = 0 \\
+&amp; p_{0j} = 1, &amp;&amp; \forall j \in \mathcal{C} \\
+&amp; x_{ij} \in \{0,1\}, &amp;&amp; \forall \{i \in \mathcal{N}_0, \; j \in \mathcal{N}_+ : i \neq j\} \\
+&amp; y_{ijk} \in \{0,1\}, &amp;&amp; \forall (i,j,k) \in \mathcal{P} \\
+&amp; p_{ij} \in \{0,1\}, &amp;&amp; \forall \{i \in \mathcal{C}, \; j \in \mathcal{C} : i \neq j\} \\
+&amp; u_i \in \mathbb{Z}^+, &amp;&amp; \forall i \in \mathcal{N}_+ \\
+&amp; t_i \geq 0, \; t&#x27;_i \geq 0, &amp;&amp; \forall i \in \mathcal{N}_0 \cup \mathcal{C} \cup \mathcal{N}_+
+\end{aligned}
+MinimizeSubject to​tc+1​i∈N0​i=j​∑​xij​+i∈N0​i=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​=1,j∈N+​∑​x0j​=1i∈N0​∑​xi,c+1​=1ui​−uj​+1−(c+2)(1−xij​)≤0,1≤ui​≤c+2,i∈N0​i=j​∑​xij​=k∈N+​k=j​∑​xjk​,j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​≤1,i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​≤1,2yijk​≤h∈N0​h=i​∑​xhi​+l∈Cl=k​∑​xlk​,y0jk​≤h∈N0​h=k​∑​xhk​,uk​−ui​−1+(c+2)​1−j∈C(i,j,k)∈P​∑​yijk​​≥0,ti′​≥ti​−M​1−j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​​,ti′​≤ti​+M​1−j∈Ci=j​∑​k∈N+​(i,j,k)∈P​∑​yijk​​,tk′​≥tk​−M​1−i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​,tk′​≤tk​+M​1−i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​,tk​≥th​+τhk​+sL​​l∈Ck=l​∑​m∈N+​(k,l,m)∈P​∑​yklm​​+sR​​i∈N0​i=k​∑​j∈C(i,j,k)∈P​∑​yijk​​−M(1−xhk​),tj′​≥ti′​+τij′​−M​1−k∈N+​(i,j,k)∈P​∑​yijk​​,tk′​≥tj′​+τjk′​+sR​−M​1−i∈N0​(i,j,k)∈P​∑​yijk​​,tk′​−(tj′​−τij′​)≤e+M(1−yijk​),tl′​≥tk′​−M​3−j∈C(i,j,k)∈Pl=j​∑​yijk​−m∈Cm=i,k,l​∑​n∈N+​(l,m,n)∈P,n=i,k​∑​ylmn​−pil​​,ui​−uj​−1+(c+2)pij​≥0,ui​−uj​+1−(c+2)(1−pij​)≤0,pij​+pji​=1,t0​=0t0′​=0p0j​=1,xij​∈{0,1},yijk​∈{0,1},pij​∈{0,1},ui​∈Z+,ti​≥0,ti′​≥0,​​∀j∈C∀{i∈C,j∈N+​:i=j}∀i∈N+​∀j∈C∀i∈N0​∀k∈N+​∀{i∈C,j∈C,k∈N+​:(i,j,k)∈P}∀{j∈C,k∈N+​:(0,j,k)∈P}∀{i∈C,k∈N+​:k=i}∀i∈C∀i∈C∀k∈N+​∀k∈N+​∀{h∈N0​,k∈N+​:k=h}∀{i∈N0​,j∈C:i=j}∀{j∈C,k∈N+​:k=j}∀{i∈N0​,j∈C,k∈N+​:(i,j,k)∈P}∀{i∈N0​,k∈N+​:k=i,l∈C:l=i,l=k}∀{i∈C,j∈C:i=j}∀{i∈C,j∈C:i=j}∀{i∈C,j∈C:i=j}∀j∈C∀{i∈N0​,j∈N+​:i=j}∀(i,j,k)∈P∀{i∈C,j∈C:i=j}∀i∈N+​∀i∈N0​∪C∪N+​​问题变体：
+
+VRPD（Vehicle Routing Problem with Drones）：多辆卡车、多架无人机的推广，需要同时决定客户到卡车的分配以及各卡车携带的无人机架次。
+PDSTSP（Parallel Drone Scheduling TSP）：无人机从车场独立起飞、配送并返回车场，与卡车并行作业，不依赖卡车作为移动基站。
+其他扩展：考虑时间窗、无人机多包裹载荷、电池更换/充电站、风速与风向、禁飞区与噪声限制、动态订单等。
+
+求解思路：FSTSP 是 NP-hard 的（卡车全配送时退化为 TSP），实际中常用元启发式（遗传算法、模拟退火、自适应大邻域搜索等）求解大规模实例；分支定界、割平面等精确方法适用于中小规模实例。
+参考文献
+
+Murray, C. C., &amp; Chu, A. G. (2015). The flying sidekick traveling salesman problem: Optimization of drone-assisted parcel delivery. Transportation Research Part C: Emerging Technologies, 54, 86–109.
+Agatz, N., Bouman, P., &amp; Schmidt, M. (2018). Optimization approaches for the traveling salesman problem with drone. Transportation Science, 52(4), 965–981.
+
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
+        <tag>无人机配送</tag>
       </tags>
   </entry>
   <entry>
@@ -440,506 +758,6 @@ X^\top X \beta = X^\top y
       </tags>
   </entry>
   <entry>
-    <title>二阶锥规划示例及其对偶</title>
-    <url>/2025/04/14/SOCP_dual/</url>
-    <content><![CDATA[二阶锥规划(SOCP)
-二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
-
-SOCP的原始和对偶问题
-SOCP的原始问题为：
-min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
-\end{array}
-mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
-其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
-对偶问题为：
-max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
-\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
-其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
-证明:
-令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
-min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
-\begin{array}{ll}
-\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
-\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
-&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
-&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
-\end{array}
-mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
-引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
-L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
-L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
-&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
-&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
-\end{aligned}
-L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
-原始问题的极小极大表示为：
-p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
-p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
-那么对偶问题的极大极小表示为：
-d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
-d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
-\end{aligned}
-d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
-针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
-f−∑i=1mAi⊤−∑i=1muici=0,
-\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
-f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
-该问题才有下界。
-针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
-min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
-\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
-ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
-当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
-因此，SOCP的对偶问题等价于：
-max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
-\begin{array}{ll}
-\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
-\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
-&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
-&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
-\end{array}
-maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
-令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
-示例
-基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
-min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
-&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
-\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
-其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
-不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
-通过对偶转换可以得到RC的可处理形式:
-min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
-Python实现求解
-CVXPY库可以直接求解SOCP。
-import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
-求解结果如下：
-status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>二阶锥优化</tag>
-        <tag>SOCP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>最优化理论与方法-无约束优化</title>
-    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
-    <content><![CDATA[无约束优化
-
-
-无约束优化问题
-
-无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
-min⁡xf(x)
-\min_{x} f(x)
-xmin​f(x)
-其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
-
-
-
-
-什么是一个解？
-
-
-全局最小值点：
-点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
-f(x∗)≤f(x),∀ x∈Rn.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
-f(x∗)≤f(x),∀x∈Rn.
-
-
-局部最小值点：
-大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
-点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
-f(x∗)≤f(x),∀ x∈N.
-f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
-f(x∗)≤f(x),∀x∈N.
-
-
-严格局部最小值点：
-若存在邻域 N\mathcal{N}N，使得
-f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
-f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
-f(x∗)&lt;f(x),∀x∈N,x=x∗,
-则称 x∗x^*x∗ 为严格局部最小值点。
-
-.hfhcouioodzt{}
-
-
-
-
-
-识别一个局部最小
-
-
-当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
-
-
-特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
-
-梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
-Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
-
-
-
-一阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
-∇f(x∗)=0.
-\nabla f(x^*) = 0.
-∇f(x∗)=0.
-此条件称为一阶必要条件（first-order necessary condition）。
-若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
-因此，任何局部极小值点都必须是驻点。
-
-
-
-二阶必要条件
-
-若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
-
-梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
-Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
-
-
-
-
-这两个条件合称为二阶必要条件（second-order necessary conditions）。
-
-
-
-二阶充分条件
-
-假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
-∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
-则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
-
-
-此为二阶充分条件（second-order sufficient condition）。
-
-
-
-针对凸函数的情况
-
-若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
-进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
-
-
-
-
-
-
-算法总览
-对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
-
-
-随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
-它适用于组合优化问题以及规模较小的连续优化问题。
-常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
-
-
-确定型方法根据所利用函数信息的程度，进一步分为：
-
-直接搜索法（又称模式搜索法）
-梯度型方法
-
-
-
-直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
-它不需要计算梯度，适用于以下情形：
-
-变量维数较低，
-约束结构简单，
-目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
-典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
-
-
-
-
-
-两种策略
-对于梯度型数值方法(Gradient-based),一般通过两种策略，来
-由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
-
-线搜索
-
-在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
-沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
-min⁡α&gt;0f(xk+αpk).
-\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
-α&gt;0min​f(xk​+αpk​).
-虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
-
-
-信赖域
-
-在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
-然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
-因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
-min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
-\begin{aligned}
-\min_{p} \quad &amp; m_k(x_k + p) \\
-\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
-\end{aligned}
-pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
-其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
-模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
-mk(xk+p)=fk+pT∇fk+12pTBkp,
-m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
-mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
-其中：
-
-fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
-∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
-BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
-
-
-
-
-线搜索VS信赖域
-
-
-线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
-
-
-线搜索方法：
-
-首先选定一个搜索方向 pkp_kpk​；
-然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
-
-
-
-信赖域方法：
-
-首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
-然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
-
-
-
-
-
-
-
-线搜索——搜索方向
-
-
-线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
-pkT∇f(xk)&lt;0.
-p_k^T \nabla f(x_k) &lt; 0.
-pkT​∇f(xk​)&lt;0.
-
-
-这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
-f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
-f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
-f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
-即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
-
-
-一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
-通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
-
-
-在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
-
-
-搜索方向包括：
-
-最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
-牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
-拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
-
-
-
-
-
-最速下降方向
-
-
-最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
-
-
-考虑一阶泰勒展开：
-f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
-f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
-f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
-要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
-min⁡p  pT∇fksubject to∥p∥=1.
-\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
-pmin​pT∇fk​subject to∥p∥=1.
-
-
-该问题的解为：
-p=−∇fk∥∇fk∥,
-p = -\frac{\nabla f_k}{\|\nabla f_k\|},
-p=−∥∇fk​∥∇fk​​,
-即负梯度方向是单位长度下的最速下降方向。
-
-
-因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
-pk=−∇f(xk).
-p_k = -\nabla f(x_k).
-pk​=−∇f(xk​).
-
-
-
-.okuxrvdfbmer{}  
-
-- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
-
-但在困难问题上，其收敛速度可能极其缓慢。
-
-
-.onnmdtuhysgq{}
-
-
-]]></content>
-      <categories>
-        <category>最优化</category>
-      </categories>
-      <tags>
-        <tag>最优化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
-    <url>/2025/11/07/VRPTW/</url>
-    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
-
-问题数学描述
-假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
-模型定义
-决策变量
-
-xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
-ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
-ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
-
-目标函数
-最小化总的行驶成本：
-min⁡∑i,j∈Acijxij
-\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
-mini,j∈A∑​cij​xij​
-约束
-
-离开客户的车辆数目必须为1：
-∑j∈Vxij=1,∀i∈C
-\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
-j∈V∑​xij​=1,∀i∈C
-进出入车厂的数量必须相等, 车厂的流平衡约束：
-∑j∈Vxoj−∑i∈Vxid=0
-\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
-j∈V∑​xoj​−i∈V∑​xid​=0
-进出入客户的车的数量必须相等，客户点的流平衡约束：
-∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
-i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
-车辆的容量约束， (MTZ子回路消除)：
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆行驶时间约束：
-ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
-客户时间窗约束：
-ai≤ti≤bi,∀i∈V
-a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
-ai​≤ti​≤bi​,∀i∈V
-车辆容量约束：
-0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
-完整的VRPTW的数学优化模型如下：
-min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{align}
-\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
-\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
-          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
-          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
-          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
-          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
-          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
-          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
-\end{align}
-mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
-
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
-    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
-    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
-对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
-
-Transportation Research 系列 ISO 缩写一览表
-
-
-
-期刊全称
-ISO 标准缩写
-
-
-
-
-Part A: Policy and Practice
-Transp. Res. Part A Policy Pract.
-
-
-Part B: Methodological
-Transp. Res. Part B Methodol.
-
-
-Part C: Emerging Technologies
-Transp. Res. Part C Emerg. Technol.
-
-
-Part D: Transport and Environment
-Transp. Res. Part D Transp. Environ.
-
-
-Part E: Logistics and Transportation Review
-Transp. Res. Part E Logist. Transp. Rev.
-
-
-Part F: Traffic Psychology and Behaviour
-Transp. Res. Part F Traffic Psychol. Behav.
-
-
-
-
-注意事项：
-
-缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
-点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
-Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
-
-
-]]></content>
-      <categories>
-        <category>论文写作</category>
-      </categories>
-      <tags>
-        <tag>期刊缩写</tag>
-        <tag>ISO缩写</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>最优化理论与方法-引言和预备知识</title>
     <url>/2025/12/30/Optimization-Theory-and-Methods-Preliminaries/</url>
     <content><![CDATA[引言和预备知识
@@ -962,7 +780,7 @@ Optimization
 
 优化的过程
 
-.dyxiexqkqbwj{}
+.dxtvthrrbifc{}
 
 
 
@@ -1555,7 +1373,7 @@ f(−1.9,3.2)≈−20+(−0.5)+21​(1.38)=−20−0.5+0.69=−19.81
 
 
 
-.bdbeqidvopat{}
+.vuiiokmqxbxs{}
 
 
 
@@ -1599,7 +1417,7 @@ affC={i=1∑k​αi​xi​​x1​,…,xk​∈C,i=1∑k​αi​=1,k∈N}.
 
 
 
-.olcpjtgkkley{}
+.dahqjomeqqii{}
 
 
 
@@ -1620,7 +1438,7 @@ conv⁡C={∑i=1kαixi | x1,…,xk∈C,  αi≥0,  ∑i=1kαi=1}.
   \operatorname{conv} C = \left\{ \sum_{i=1}^{k} \alpha_i x_i \,\middle|\, x_1, \dots, x_k \in C,\; \alpha_i \geq 0,\; \sum_{i=1}^{k} \alpha_i = 1 \right\}.
   convC={i=1∑k​αi​xi​​x1​,…,xk​∈C,αi​≥0,i=1∑k​αi​=1}.
 
-.jdpqteimrkhk{}
+.xusikrgxxfvy{}
 
 
 
@@ -1659,13 +1477,13 @@ H={x∣aTx=b},a=0
 
 超平面和半空间都是凸集。
   
-  .vsfnhxuvcegm{}
+  .nnfhfdweyjcq{}
   
 
 
 多面体（Polyhedron）是指有限个半空间与超平面的交集。
 
-.oypuntetkhoo{}
+.ttjucbqrtwvq{}
 
 
 
@@ -1694,7 +1512,7 @@ l∞l_\inftyl∞​-球：{x∣∥x−xc∥∞≤r}\{ x \mid \|x - x_c\|_\infty 
 
 
 
-.feaqxstjycfr{}
+.mhrgdyxucpkn{}
 
 - 范数球和范数锥都是**凸集**。
 
@@ -1717,7 +1535,7 @@ x=θ1​x1​+θ2​x2​
 
 一个集合称为凸锥（convex cone），如果它包含其任意点的所有锥组合。
 
-.jhoxopbnrsbb{}
+.drhmdexdvnuz{}
 
 
 
@@ -1726,7 +1544,7 @@ x=θ1​x1​+θ2​x2​
 \alpha x + \beta y \in C.
 αx+βy∈C.
 
-.bqutlndagglk{}
+.vqrwvgqyrkjr{}
 
 
 
@@ -1734,7 +1552,7 @@ x=θ1​x1​+θ2​x2​
 
 
 
-.dlffzavqcunb{}
+.lilbxvstjyjz{}
 
 
 
@@ -1916,7 +1734,7 @@ Ax≤0,bTx&gt;0
 
 
 
-.xtejmxwxxpoa{}
+.ckmdavkyqotm{}
 
 
 
@@ -1943,7 +1761,7 @@ f(αx+(1−α)y)&lt;αf(x)+(1−α)f(y),
 
 
 
-.ixhgnepbwsne{}
+.clxeyqmebekg{}
 
 
 一阶条件（适用于定义在凸集 CCC 上的可微函数 fff）：
@@ -1960,7 +1778,7 @@ f(y)&gt;f(x)+∇f(x)T(y−x),∀ x,y∈C,  x≠y.
 f(y) &gt; f(x) + \nabla f(x)^T (y - x), \quad \forall\, x, y \in C,\; x \neq y.
 f(y)&gt;f(x)+∇f(x)T(y−x),∀x,y∈C,x=y.
 
-.cvcrcdeoxcse{}
+.bqryewqrtudu{}
 
 
 
@@ -2153,6 +1971,506 @@ f(x∗)&lt;f(x),∀x∈S 且 x=x∗,
       </categories>
       <tags>
         <tag>最优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>最优化理论与方法-无约束优化</title>
+    <url>/2025/12/30/Optimization-Theory-and-Methods-Unconstrained-Optimization/</url>
+    <content><![CDATA[无约束优化
+
+
+无约束优化问题
+
+无约束优化问题是指在没有任何限制条件下，最小化一个依赖于实变量的目标函数：
+min⁡xf(x)
+\min_{x} f(x)
+xmin​f(x)
+其中 x∈Rnx \in \mathbb{R}^nx∈Rn（n≥1n \geq 1n≥1）是一个实向量，函数 f:Rn→Rf: \mathbb{R}^n \to \mathbb{R}f:Rn→R 通常是光滑的（例如连续可微）。
+
+
+
+
+什么是一个解？
+
+
+全局最小值点：
+点 x∗x^*x∗ 称为函数 fff 的全局最小值点，如果
+f(x∗)≤f(x),∀ x∈Rn.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathbb{R}^n.
+f(x∗)≤f(x),∀x∈Rn.
+
+
+局部最小值点：
+大多数优化算法只能找到局部最小值点，即在某个邻域内使目标函数值最小的点。
+点 x∗x^*x∗ 称为局部最小值点（或弱局部最小值点），如果存在 x∗x^*x∗ 的一个邻域 N\mathcal{N}N，使得
+f(x∗)≤f(x),∀ x∈N.
+f(x^*) \leq f(x), \quad \forall\, x \in \mathcal{N}.
+f(x∗)≤f(x),∀x∈N.
+
+
+严格局部最小值点：
+若存在邻域 N\mathcal{N}N，使得
+f(x∗)&lt;f(x),∀ x∈N,  x≠x∗,
+f(x^*) &lt; f(x), \quad \forall\, x \in \mathcal{N},\; x \neq x^*,
+f(x∗)&lt;f(x),∀x∈N,x=x∗,
+则称 x∗x^*x∗ 为严格局部最小值点。
+
+.vztvoqkgnjka{}
+
+
+
+
+
+识别一个局部最小
+
+
+当目标函数 fff 光滑时，有多种高效且实用的方法可用于识别局部极小值点。
+
+
+特别地，若 fff 二阶连续可微，则可通过考察以下两个量来判断某点 x∗x^*x∗ 是否为局部极小值点（甚至严格局部极小值点）：
+
+梯度 ∇f(x∗)\nabla f(x^*)∇f(x∗)
+Hessian 矩阵 ∇2f(x∗)\nabla^2 f(x^*)∇2f(x∗)
+
+
+
+一阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 fff 在 x∗x^*x∗ 的某个开邻域内连续可微，则必有
+∇f(x∗)=0.
+\nabla f(x^*) = 0.
+∇f(x∗)=0.
+此条件称为一阶必要条件（first-order necessary condition）。
+若 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，则称 x∗x^*x∗ 为函数 fff 的驻点（或平稳点，stationary  point）。
+因此，任何局部极小值点都必须是驻点。
+
+
+
+二阶必要条件
+
+若 x∗x^*x∗ 是函数 fff 的局部极小值点，且 Hessian 矩阵 ∇2f\nabla^2 f∇2f 在 x∗x^*x∗ 的某个开邻域内连续，则必有：
+
+梯度为零：∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0，
+Hessian 矩阵半正定：∇2f(x∗)⪰0\nabla^2 f(x^*) \succeq 0∇2f(x∗)⪰0。
+
+
+
+
+这两个条件合称为二阶必要条件（second-order necessary conditions）。
+
+
+
+二阶充分条件
+
+假设 ∇2f\nabla^2 f∇2f 在点 x∗x^*x∗ 的某个开邻域内连续，且满足
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+\nabla f(x^*) = 0, \quad \nabla^2 f(x^*) \succ 0 \quad \text{（即 Hessian 矩阵正定）},
+∇f(x∗)=0,∇2f(x∗)≻0（即 Hessian 矩阵正定）,
+则 x∗x^*x∗ 是函数 fff 的严格局部极小值点。
+
+
+此为二阶充分条件（second-order sufficient condition）。
+
+
+
+针对凸函数的情况
+
+若 fff 是凸函数，则其任意局部极小值点 x∗x^*x∗ 必为全局极小值点。
+进一步，若 fff 可微，则任意驻点（即满足 ∇f(x∗)=0\nabla f(x^*) = 0∇f(x∗)=0 的点）x∗x^*x∗ 都是 fff 的全局极小值点。
+
+
+
+
+
+
+算法总览
+对于一般的非线性最优化问题，最典型和常见的求解方法是迭代型数值方法。根据迭代过程中下一迭代点的生成方式，这类方法可分为随机搜索型方法和确定型方法。
+
+
+随机搜索型方法是一类仿生智能优化算法，主要依赖目标函数值信息，不依赖梯度或解析结构。
+它适用于组合优化问题以及规模较小的连续优化问题。
+常见方法包括：遗传算法、模拟退火算法、蚁群优化、神经网络方法等。
+
+
+确定型方法根据所利用函数信息的程度，进一步分为：
+
+直接搜索法（又称模式搜索法）
+梯度型方法
+
+
+
+直接搜索法通过观察目标函数值的变化规律来探测下降方向，并沿该方向寻找更优解。
+它不需要计算梯度，适用于以下情形：
+
+变量维数较低，
+约束结构简单，
+目标函数形式复杂或不可导，导致梯度难以获取或计算成本高。
+典型算法包括：坐标轮换法、Hooke-Jeeves 方法、Powell 共轭方向法等。
+
+
+
+
+
+两种策略
+对于梯度型数值方法(Gradient-based),一般通过两种策略，来
+由当前迭代点产生下一选代点：线搜索策略和 信赖域策略。
+
+线搜索
+
+在线搜索策略（line search）中，算法首先选择一个搜索方向 pkp_kpk​，然后从当前迭代点 xkx_kxk​ 出发，沿该方向寻找一个函数值更低的新迭代点。
+沿方向 pkp_kpk​ 移动的步长 α&gt;0\alpha &gt; 0α&gt;0 通常通过近似求解如下一维优化问题来确定：
+min⁡α&gt;0f(xk+αpk).
+\min_{\alpha &gt; 0} f(x_k + \alpha p_k).
+α&gt;0min​f(xk​+αpk​).
+虽然精确求解该一维问题能最大程度地利用方向 pkp_kpk​ 的下降潜力，但精确线搜索计算代价高且通常不必要。因此，实际算法多采用满足一定条件（如 Wolfe 条件）的非精确线搜索。
+
+
+信赖域
+
+在信赖域策略（trust region method）中，算法利用当前已知的关于目标函数 fff 的信息，构造一个模型函数 mkm_kmk​，使其在当前迭代点 xkx_kxk​ 附近的行为与真实的 fff 相似。
+然而，当 xxx 远离 xkx_kxk​ 时，模型 mkm_kmk​ 可能不再是对 fff 的良好近似。
+因此，该策略将对模型函数的最小化限制在 xkx_kxk​ 周围的一个信赖域内，即求解如下子问题：
+min⁡pmk(xk+p)s.t.∥p∥2≤Δk,
+\begin{aligned}
+\min_{p} \quad &amp; m_k(x_k + p) \\
+\text{s.t.} \quad &amp; \|p\|_2 \leq \Delta_k,
+\end{aligned}
+pmin​s.t.​mk​(xk​+p)∥p∥2​≤Δk​,​
+其中 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0 是当前信赖域的半径，用于控制搜索范围。
+模型函数 mkm_kmk​ 通常取为二次函数，形式如下：
+mk(xk+p)=fk+pT∇fk+12pTBkp,
+m_k(x_k + p) = f_k + p^T \nabla f_k + \frac{1}{2} p^T B_k p,
+mk​(xk​+p)=fk​+pT∇fk​+21​pTBk​p,
+其中：
+
+fk=f(xk)f_k = f(x_k)fk​=f(xk​)，
+∇fk=∇f(xk)\nabla f_k = \nabla f(x_k)∇fk​=∇f(xk​) 是目标函数在 xkx_kxk​ 处的梯度，
+BkB_kBk​ 是 Hessian 矩阵 ∇2f(xk)\nabla^2 f(x_k)∇2f(xk​) 或其某种近似（如拟牛顿法中的近似）。
+
+
+
+
+线搜索VS信赖域
+
+
+线搜索（Line Search）与信赖域（Trust Region）方法的核心区别在于确定方向与步长的顺序不同。
+
+
+线搜索方法：
+
+首先选定一个搜索方向 pkp_kpk​；
+然后在该方向上确定一个合适的步长 αk&gt;0\alpha_k &gt; 0αk​&gt;0，使得新点 xk+1=xk+αkpkx_{k+1} = x_k + \alpha_k p_kxk+1​=xk​+αk​pk​ 能有效降低目标函数值。
+
+
+
+信赖域方法：
+
+首先设定一个最大移动距离，即信赖域半径 Δk&gt;0\Delta_k &gt; 0Δk​&gt;0；
+然后在球形区域 {p∣∥p∥2≤Δk}\{ p \mid \|p\|_2 \leq \Delta_k \}{p∣∥p∥2​≤Δk​} 内同时选择方向和步长（即向量 ppp），以在该约束下尽可能优化模型函数，从而获得最佳改进。
+
+
+
+
+
+
+
+线搜索——搜索方向
+
+
+线搜索算法要求搜索方向 pkp_kpk​ 是一个下降方向（descent direction），即满足
+pkT∇f(xk)&lt;0.
+p_k^T \nabla f(x_k) &lt; 0.
+pkT​∇f(xk​)&lt;0.
+
+
+这一条件保证了：存在某个 ε&gt;0\varepsilon &gt; 0ε&gt;0，使得对所有 0&lt;α≤ε0 &lt; \alpha \leq \varepsilon0&lt;α≤ε，有
+f(xk+αpk)=f(xk)+α pkT∇f(xk)+o(α)&lt;f(xk),
+f(x_k + \alpha p_k) = f(x_k) + \alpha\, p_k^T \nabla f(x_k) + o(\alpha) &lt; f(x_k),
+f(xk​+αpk​)=f(xk​)+αpkT​∇f(xk​)+o(α)&lt;f(xk​),
+即沿 pkp_kpk​ 走“足够小”的一步，函数值必定下降。
+
+
+一旦确定了下降方向，下一步是通过线搜索确定合适的步长 αk\alpha_kαk​。
+通常，这类算法生成的迭代点列 {xk}\{x_k\}{xk​} 对应的目标函数值 {f(xk)}\{f(x_k)\}{f(xk​)} 是单调递减的，因此线搜索方法也被称为下降算法。
+
+
+在影响算法效率的因素中，搜索方向的选择比步长的精确性更为关键。一个良好的方向往往比精细调整步长更能加速收敛。
+
+
+搜索方向包括：
+
+最速下降方向：pk=−∇f(xk)p_k = -\nabla f(x_k)pk​=−∇f(xk​)
+牛顿方向：pk=−[∇2f(xk)]−1∇f(xk)p_k = -[\nabla^2 f(x_k)]^{-1} \nabla f(x_k)pk​=−[∇2f(xk​)]−1∇f(xk​)
+拟牛顿方向：pk=−Bk−1∇f(xk)p_k = -B_k^{-1} \nabla f(x_k)pk​=−Bk−1​∇f(xk​)，其中 BkB_kBk​ 是 Hessian 矩阵的近似
+
+
+
+
+
+最速下降方向
+
+
+最速下降方向（steepest descent direction）是指在当前点 xkx_kxk​ 处，使目标函数 fff 下降最快的方向。
+
+
+考虑一阶泰勒展开：
+f(xk+αp)=f(xk)+α pT∇f(xk)+o(α),α&gt;0.
+f(x_k + \alpha p) = f(x_k) + \alpha\, p^T \nabla f(x_k) + o(\alpha), \quad \alpha &gt; 0.
+f(xk​+αp)=f(xk​)+αpT∇f(xk​)+o(α),α&gt;0.
+要使函数值在单位步长下下降最多，应最小化方向导数 pT∇f(xk)p^T \nabla f(x_k)pT∇f(xk​)，即求解：
+min⁡p  pT∇fksubject to∥p∥=1.
+\min_{p} \; p^T \nabla f_k \quad \text{subject to} \quad \|p\| = 1.
+pmin​pT∇fk​subject to∥p∥=1.
+
+
+该问题的解为：
+p=−∇fk∥∇fk∥,
+p = -\frac{\nabla f_k}{\|\nabla f_k\|},
+p=−∥∇fk​∥∇fk​​,
+即负梯度方向是单位长度下的最速下降方向。
+
+
+因此，最速下降法（又称梯度法或梯度下降法）采用搜索方向：
+pk=−∇f(xk).
+p_k = -\nabla f(x_k).
+pk​=−∇f(xk​).
+
+
+
+.tjtaeawjhdxp{}  
+
+- 最速下降方向的优点是仅需计算梯度 $\nabla f_k$，无需二阶导数信息。
+
+但在困难问题上，其收敛速度可能极其缓慢。
+
+
+.rqagvrwlpshu{}
+
+
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>最优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二阶锥规划示例及其对偶</title>
+    <url>/2025/04/14/SOCP_dual/</url>
+    <content><![CDATA[二阶锥规划(SOCP)
+二阶锥规划(Second-order cone program)，是指目标函数为线性函数，约束条件中的决策变量在二阶锥中。
+
+SOCP的原始和对偶问题
+SOCP的原始问题为：
+min⁡f⊤xs. t.∥Aix+bi∥2≤ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_i\|_2 \leq \boldsymbol{c}_i^\top \boldsymbol{x} + d_i, \quad i=1,\ldots,m 
+\end{array}
+mins. t.​f⊤x∥Ai​x+bi​∥2​≤ci⊤​x+di​,i=1,…,m​
+其中Ai∈Rni×n,bi∈Rni,ci∈Rn,di∈R,x∈Rn,i=1,…,mA_i\in\mathbb{R}^{n_i\times n},\boldsymbol{b}_i\in\mathbb{R}^{n_i},\boldsymbol{c}_i\in\mathbb{R}^n,d_i\in\mathbb{R},\boldsymbol{x}\in\mathbb{R}^n, i=1,\ldots,mAi​∈Rni​×n,bi​∈Rni​,ci​∈Rn,di​∈R,x∈Rn,i=1,…,m。
+对偶问题为：
+max⁡−∑i=1m(ui⊤bi+vidi)s. t.∑i=1mAi⊤ui+∑i=1mvici=f,i=1,…,m,∥ui∥2≤vi,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{u}_i^\top \boldsymbol{b}_i + v_id_i)\\
+\mathrm{s.~t.} &amp; \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{u}_i + \sum_{i=1}^mv_i\boldsymbol{c}_i = \boldsymbol{f},\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{u}_i\|_2\leq v_i, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(ui⊤​bi​+vi​di​)∑i=1m​Ai⊤​ui​+∑i=1m​vi​ci​=f,i=1,…,m,∥ui​∥2​≤vi​,i=1,…,m,​
+其中，ui∈Rn\boldsymbol{u}_i\in\mathbb{R}^nui​∈Rn，vi∈Rv_i\in\mathbb{R}vi​∈R，i=1,…,mi=1,\ldots,mi=1,…,m。
+证明:
+令yi=Aix+bi\boldsymbol{y}_i = \boldsymbol{A}_i\boldsymbol{x} + \boldsymbol{b}_iyi​=Ai​x+bi​，ti=ci⊤+dit_i = \boldsymbol{c}_i^\top + d_iti​=ci⊤​+di​，则SOCP原问题等价于：
+min⁡f⊤xs. t.∥yi∥2≤ti,i=1,…,myi=Ai⊤x+bi,i=1,…,mti=ci⊤x+di,i=1,…,m
+\begin{array}{ll}
+\min   &amp; \boldsymbol{f}^\top\boldsymbol{x}\\
+\mathrm{s.~t.} &amp; \|\boldsymbol{y}_i\|_2 \leq t_i, \quad i=1,\ldots,m \\
+&amp; \boldsymbol{y}_i = \boldsymbol{A}_i^\top\boldsymbol{x} + \boldsymbol{b}_i, \quad i=1,\ldots,m \\
+&amp; t_i = \boldsymbol{c}_i^\top\boldsymbol{x}+d_i, \quad i=1,\ldots,m \\
+\end{array}
+mins. t.​f⊤x∥yi​∥2​≤ti​,i=1,…,myi​=Ai⊤​x+bi​,i=1,…,mti​=ci⊤​x+di​,i=1,…,m​
+引入拉格朗日乘子λ∈Rm,μi∈Rni,i=1,…,m，ν∈Rm\boldsymbol{\lambda}\in\mathbb{R}^m,\boldsymbol{\mu}_i\in\mathbb{R}^{n_i},i=1,\ldots,m，\boldsymbol{\nu}\in\mathbb{R}^mλ∈Rm,μi​∈Rni​,i=1,…,m，ν∈Rm，则可以写出上述约束优化问题的拉格朗日函数：
+L(x,y,t,λ,μ,ν)=f⊤x+∑i=1mλi(∥yi∥2−ti)+∑i=1mμi⊤(yi−Ai⊤x−bi)+∑i=1mνi(ti−ci⊤x)=(f−∑i=1mAi⊤−∑i=1muici)⊤x+∑i=1m(λi∥yi∥2+μi⊤yi)+∑i=1m(−λi+νi)ti−∑i=1m(μi⊤bi+νidi)\begin{aligned}
+L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})&amp; =  \boldsymbol{f}^\top\boldsymbol{x} + \sum_{i=1}^m\lambda_i(\|\boldsymbol{y}_i\|_2 -t_i) + \sum_{i=1}^m\boldsymbol{\mu}_i^\top(\boldsymbol{y}_i-\boldsymbol{A}_i^\top\boldsymbol{x}-\boldsymbol{b}_i) + \sum_{i=1}^m\nu_i(t_i - \boldsymbol{c}_i^\top\boldsymbol{x})\\
+&amp;=  (\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i)^\top\boldsymbol{x} + \sum_{i=1}^m(\lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i) \\
+&amp;\quad+ \sum_{i=1}^m(-\lambda_i+\nu_i)t_i-\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)
+\end{aligned}
+L(x,y,t,λ,μ,ν)​=f⊤x+i=1∑m​λi​(∥yi​∥2​−ti​)+i=1∑m​μi⊤​(yi​−Ai⊤​x−bi​)+i=1∑m​νi​(ti​−ci⊤​x)=(f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​)⊤x+i=1∑m​(λi​∥yi​∥2​+μi⊤​yi​)+i=1∑m​(−λi​+νi​)ti​−i=1∑m​(μi⊤​bi​+νi​di​)​
+原始问题的极小极大表示为：
+p⋆=min⁡x,y,tmax⁡λ,μ,νL(x,y,t,λ,μ,ν)\begin{aligned}
+p^\star = \min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}}\max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+p⋆=x,y,tmin​λ,μ,νmax​L(x,y,t,λ,μ,ν)​
+那么对偶问题的极大极小表示为：
+d⋆=max⁡λ,μ,νmin⁡x,y,tL(x,y,t,λ,μ,ν)\begin{aligned}
+d^\star = \max_{\boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu}}\min_{\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}} L(\boldsymbol{x}, \boldsymbol{y}, \boldsymbol{t}, \boldsymbol{\lambda}, \boldsymbol{\mu}, \boldsymbol{\nu})
+\end{aligned}
+d⋆=λ,μ,νmax​x,y,tmin​L(x,y,t,λ,μ,ν)​
+针对内层关于x\boldsymbol{x}x的min⁡\minmin问题，当且仅当满足：
+f−∑i=1mAi⊤−∑i=1muici=0,
+\boldsymbol{f}-\sum_{i=1}^m\boldsymbol{A}_i^\top -\sum_{i=1}^m\boldsymbol{u}_i\boldsymbol{c}_i = 0,
+f−i=1∑m​Ai⊤​−i=1∑m​ui​ci​=0,
+该问题才有下界。
+针对内层关于yi\boldsymbol{y}_iyi​的min⁡\minmin问题，我们可以得到：
+min⁡yλi∥yi∥2+μi⊤yi={0∥μi∥2≤λi−∞otherwise.
+\min_{\boldsymbol{y}} \lambda_i\|\boldsymbol{y}_i\|_2+\boldsymbol{\mu}_i^\top\boldsymbol{y}_i = \left\{\begin{array}{ll}{0}&amp;{\|\boldsymbol{\mu}_{i}\|_{2}\leq\lambda_{i}}\\{-\infty}&amp;{\mathrm{otherwise}.}\end{array}\right.
+ymin​λi​∥yi​∥2​+μi⊤​yi​={0−∞​∥μi​∥2​≤λi​otherwise.​
+当且仅当λi=νi\lambda_i = \nu_iλi​=νi​，内层关于t\boldsymbol{t}t的min⁡\minmin才有下界。
+因此，SOCP的对偶问题等价于：
+max⁡−∑i=1m(μi⊤bi+νidi)s. t.f−∑i=1mAi⊤μi−∑i=1mνici=0,i=1,…,m,∥μi∥≤λi,i=1,…,m,−λi+νi=0,i=1,…,m,
+\begin{array}{ll}
+\max   &amp; -\sum_{i=1}^m(\boldsymbol{\mu}_i^\top\boldsymbol{b}_i+\nu_id_i)\\
+\mathrm{s.~t.} &amp; \boldsymbol{f} - \sum_{i=1}^m \boldsymbol{A}_i^\top\boldsymbol{\mu}_i - \sum_{i=1}^m\nu_i\boldsymbol{c}_i =0,\quad i=1,\ldots,m, \\
+&amp;\|\boldsymbol{\mu}_i\|\leq \lambda_i, \quad i=1,\ldots,m,\\
+&amp;-\lambda_i+\nu_i=0, \quad i=1,\ldots,m,
+\end{array}
+maxs. t.​−∑i=1m​(μi⊤​bi​+νi​di​)f−∑i=1m​Ai⊤​μi​−∑i=1m​νi​ci​=0,i=1,…,m,∥μi​∥≤λi​,i=1,…,m,−λi​+νi​=0,i=1,…,m,​
+令μi=ui,λi=νi=vi\boldsymbol{\mu}_i=\boldsymbol{u}_i, \lambda_i=\nu_i=v_iμi​=ui​,λi​=νi​=vi​，则可以得到SOCP的对偶问题。
+示例
+基于椭球不确定集合的鲁棒线性规划是一个典型的二阶锥规划问题。下面列举一个鲁棒对应(RC)的形式：
+min⁡c⊤xs. t.(ai+ui)Tx≤bi for all ∥ui∥2≤1,i=1,…,m,\begin{aligned}&amp;\min\quad c^\top x\\
+&amp;\mathrm{s.~t.}\quad(a_i+u_i)^Tx\leq b_i\text{ for all }\|u_i\|_2\leq1,\quad i=1,\ldots,m,
+\end{aligned}​minc⊤xs. t.(ai​+ui​)Tx≤bi​ for all ∥ui​∥2​≤1,i=1,…,m,​
+其中，ai∈Rna_i\in\mathbb{R}^nai​∈Rn，bi∈Rb_i\in\mathbb{R}bi​∈R，ui∈Rnu_i\in\mathbb{R}^nui​∈Rn，c∈Rnc\in\mathbb{R}^nc∈Rn。
+不确定参数uiu_iui​的集合被限制为一个ℓ2\ell_2ℓ2​范数构成的椭球集合，即∥ui∥2≤1\|u_i\|_2\leq1∥ui​∥2​≤1。
+通过对偶转换可以得到RC的可处理形式:
+min⁡cTxs. t.aiTx+∥x∥2≤bi,i=1,…,m,\begin{aligned}&amp;\min\quad c^Tx\\&amp;\mathrm{s.~t.}\quad a_i^Tx+\|x\|_2\leq b_i,\quad i=1,\ldots,m,\end{aligned}​mincTxs. t.aiT​x+∥x∥2​≤bi​,i=1,…,m,​
+Python实现求解
+CVXPY库可以直接求解SOCP。
+import cvxpy as cpimport numpy as np# Generate a random feasible SOCP.m = 3n = 5np.random.seed(2)c = np.random.random(n)A = np.random.random((m, n))x0 = np.random.random(n)b = A@x0x = cp.Variable(n)obj = cp.Minimize(c @ x)soc_constraints = [    cp.SOC(b[i] - A[i]@x, x) for i in range(m)]prob = cp.Problem(obj, soc_constraints)prob.solve()print(&quot;status:&quot;, prob.status)print(&quot;optimal value&quot;, prob.value)print(&quot;optimal var&quot;, x.value)for i in range(m):    print(&quot;soc constraint&quot;, soc_constraints[i].dual_value)
+求解结果如下：
+status: optimaloptimal value -2.487555966760468optimal var [-1.37881038 -0.81856901 -1.7036923  -1.23789512 -0.9273785 ]soc constraint [array([3.71192161]), array([[1.82467162],       [1.08325999],       [2.25507434],       [1.63818725],       [1.22738155]])]soc constraint [array([1.2546655]), array([[0.61681542],       [0.36620225],       [0.76212621],       [0.55379853],       [0.41483849]])]soc constraint [array([3.29587551e-08]), array([[1.10774611e-08],       [8.15413818e-10],       [1.51970753e-08],       [1.14059208e-08],       [1.06823249e-08]])]
+]]></content>
+      <categories>
+        <category>最优化</category>
+      </categories>
+      <tags>
+        <tag>二阶锥优化</tag>
+        <tag>SOCP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Transportation Research Part A-F 系列期刊ISO缩写</title>
+    <url>/2026/01/13/Transportation-Research-Abbreviation/</url>
+    <content><![CDATA[在撰写英文论文（特别是准备参考文献列表）时，准确使用期刊的 ISO 缩写非常重要。
+对于 Transportation Research Part A-F 系列期刊，其标准的 ISO 缩写格式如下表所示：
+
+Transportation Research 系列 ISO 缩写一览表
+
+
+
+期刊全称
+ISO 标准缩写
+
+
+
+
+Part A: Policy and Practice
+Transp. Res. Part A Policy Pract.
+
+
+Part B: Methodological
+Transp. Res. Part B Methodol.
+
+
+Part C: Emerging Technologies
+Transp. Res. Part C Emerg. Technol.
+
+
+Part D: Transport and Environment
+Transp. Res. Part D Transp. Environ.
+
+
+Part E: Logistics and Transportation Review
+Transp. Res. Part E Logist. Transp. Rev.
+
+
+Part F: Traffic Psychology and Behaviour
+Transp. Res. Part F Traffic Psychol. Behav.
+
+
+
+
+注意事项：
+
+缩写原则：ISO 缩写的核心原则是 Transportation -&gt; Transp.，Research -&gt; Res.。
+点（Period）的使用：在大多数引文格式（如 IEEE, Elsevier 标准格式）中，缩写词后需要加点。但如果是提交给某些特定期刊（如应用物理或某些自然科学类），它们可能采用不带点的格式（例如 Transp Res Part A），请务必检查目标期刊的 Author Guidelines。
+Part 的处理：在 ISO 规范中，“Part” 通常保留不缩写，或者缩写为 “Pt.”。但在交通运输领域的主流引文实践中，直接写 Part A, Part B… 是最标准且不容易混淆的做法。
+
+
+]]></content>
+      <categories>
+        <category>论文写作</category>
+      </categories>
+      <tags>
+        <tag>期刊缩写</tag>
+        <tag>ISO缩写</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>带时间窗约束的车辆路径规划问题(VRPTW)</title>
+    <url>/2025/11/07/VRPTW/</url>
+    <content><![CDATA[带时间窗约束的VRP问题，即在满足约束条件的情况下，求解最短路径。
+
+问题数学描述
+假设有CCC个客户点，编号从1到CCC，所有的客户用集合C\mathcal{C}C来表示。给定有向图G\mathcal{G}G=(V,A)(\mathcal{V},\mathcal{A})(V,A)，其中V=C∪{o,d}\mathcal{V}=\mathcal{C}\cup\{o,d\}V=C∪{o,d}为图中点集，包括客户集合C\mathcal{C}C和车厂点ooo及其复制点ddd; A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}= \{(i, j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}为弧集, 表示图G\mathcal{G}G中的所有弧。每一段弧(i,j)(i,j)(i,j)的行驶成本为cijc_{ij}cij​。每一个客户iii都有一个已知的需求qiq_iqi​，以及时间窗[ai,bi][a_i, b_i][ai​,bi​]和服务时间lil_ili​，其中aia_iai​为客户iii的最早开始的服务时间，bib_ibi​为客户iii的最晚开始的服务时间。除此之外，用TijT_{ij}Tij​来表示弧(i,j)(i,j)(i,j)行驶时间。问题中的车辆均为同质的车辆，车辆的最大容量为QQQ。
+模型定义
+决策变量
+
+xij∈{0,1},∀(i,j)∈Ax_{ij}\in\{0, 1\}, \forall (i,j)\in \mathcal{A}xij​∈{0,1},∀(i,j)∈A 为弧(i,j)(i,j)(i,j)的决策变量，取值为0或1，表示弧(i,j)(i,j)(i,j)是否被选中。
+ti≥0，∀i∈Vt_i\geq 0， \forall i \in \mathcal{V}ti​≥0，∀i∈V 表示车辆到达点iii的时间。
+ui≥0，∀i∈Vu_i\geq 0， \forall i \in \mathcal{V}ui​≥0，∀i∈V 表示车辆到达点iii的剩余容量。
+
+目标函数
+最小化总的行驶成本：
+min⁡∑i,j∈Acijxij
+\min \sum_{i,j\in\mathcal{A}} c_{ij}x_{ij}
+mini,j∈A∑​cij​xij​
+约束
+
+离开客户的车辆数目必须为1：
+∑j∈Vxij=1,∀i∈C
+\sum_{j\in\mathcal{V}}x_{ij}=1, \forall i\in\mathcal{C}
+j∈V∑​xij​=1,∀i∈C
+进出入车厂的数量必须相等, 车厂的流平衡约束：
+∑j∈Vxoj−∑i∈Vxid=0
+\sum_{j\in\mathcal{V}}x_{oj} - \sum_{i\in\mathcal{V}}x_{id} = 0 
+j∈V∑​xoj​−i∈V∑​xid​=0
+进出入客户的车的数量必须相等，客户点的流平衡约束：
+∑i∈Vxij−∑i∈Vxji=0,∀j∈C\sum_{i\in\mathcal{V}}x_{ij} - \sum_{i\in\mathcal{V}}x_{ji} = 0, \forall j\in\mathcal{C}
+i∈V∑​xij​−i∈V∑​xji​=0,∀j∈C
+车辆的容量约束， (MTZ子回路消除)：
+ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i + q_i - u_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
+车辆行驶时间约束：
+ti+li+Tij−tj≤M(1−xij),∀(i,j)∈At_i + l_i + T_{ij}- t_j \leq M(1-x_{ij}), \forall (i,j) \in \mathcal{A}ti​+li​+Tij​−tj​≤M(1−xij​),∀(i,j)∈A
+客户时间窗约束：
+ai≤ti≤bi,∀i∈V
+a_i \leq t_i \leq b_i, \forall i \in \mathcal{V}
+ai​≤ti​≤bi​,∀i∈V
+车辆容量约束：
+0≤ui≤Q,∀i∈V0\leq u_i \leq Q, \forall i \in \mathcal{V}0≤ui​≤Q,∀i∈V
+完整的VRPTW的数学优化模型如下：
+min⁡∑(i,j)∈Acijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑i∈Vxid=0∑i∈Vxji−∑i∈Vxij=0,∀j∈Cui+qj−uj≤M(1−xij),∀(i,j)∈A, j∈Cti+li+Tij−tj≤M(1−xij),∀(i,j)∈Aai≤ti≤bi,∀i∈V0≤ui≤Q,∀i∈Vxij∈{0,1},∀(i,j)∈A
+\begin{align}
+\min        &amp; \quad \sum_{(i,j) \in \mathcal{A}} c_{ij} x_{ij} \\
+\text{s.t.} &amp; \quad \sum_{j \in \mathcal{V}} x_{ij} = 1, &amp;&amp; \forall i \in \mathcal{C} \\
+          &amp; \quad \sum_{j \in \mathcal{V}} x_{oj} - \sum_{i \in \mathcal{V}} x_{id} = 0 \\
+          &amp; \quad \sum_{i \in \mathcal{V}} x_{ji} - \sum_{i \in \mathcal{V}} x_{ij} = 0, &amp;&amp; \forall j \in \mathcal{C} \\
+          &amp; \quad u_i + q_j - u_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A},\ j \in \mathcal{C} \\
+          &amp; \quad t_i + l_i + T_{ij} - t_j \leq M(1 - x_{ij}), &amp;&amp; \forall (i,j) \in \mathcal{A} \\
+          &amp; \quad a_i \leq t_i \leq b_i, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad 0 \leq u_i \leq Q, &amp;&amp; \forall i \in \mathcal{V} \\
+          &amp; \quad x_{ij} \in \{0,1\}, &amp;&amp; \forall (i,j) \in \mathcal{A}
+\end{align}
+mins.t.​(i,j)∈A∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−i∈V∑​xid​=0i∈V∑​xji​−i∈V∑​xij​=0,ui​+qj​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,xij​∈{0,1},​​∀i∈C∀j∈C∀(i,j)∈A, j∈C∀(i,j)∈A∀i∈V∀i∈V∀(i,j)∈A​​
+
+]]></content>
+      <categories>
+        <category>运筹优化</category>
+      </categories>
+      <tags>
+        <tag>整数规划</tag>
+        <tag>VRP</tag>
       </tags>
   </entry>
   <entry>
@@ -2379,165 +2697,6 @@ column generation的建模方式求解速度快，但求解结果不一定准确
       </tags>
   </entry>
   <entry>
-    <title>带时间窗的电动车辆路径规划问题</title>
-    <url>/2025/11/07/EVRPTW/</url>
-    <content><![CDATA[带时间窗的电动车辆路径规划问题（Electric Vehicle Routing Problem with Time Windows, EVRPTW）的问题描述如下：区域内存在一个车场或配送中心，一个或多个充电站以及若干个客户，每个客户都有明确的服务需求和服务时间窗口，且服务时间已知。车辆的行驶过程需要保证电量、时间、货物容量上的可行性。配送中心或车场需要派出车队并且为其设计合适的配送方案，使其以最小的总行驶成本完成所有的客户的货物配送需求。
-
-为了简化问题，我们做出了如下假设：
-
-只考虑一个充电站。
-时间窗为硬时间窗。
-电动车从配送中心出发时为满电量状态。
-电动车的充电速率是线性的， 每次充电都充满。
-
-为便于理解，下图展示了一个EVRPTW的示例，其中包含了3辆电动车，10个客户点以及1个充电站。3辆电动车的行驶路径及其电量状态（State Of Charge, SOC）如下：
-
-电动车1：配送中心(100%) →\rightarrow→ 4(60%) →\rightarrow→ (45%)充电站(100%) →\rightarrow→ 3(90%) →\rightarrow→ 2(70%) →\rightarrow→ 1(45%)→\rightarrow→配送中心(45%)。
-电动车2：配送中心(100%) →\rightarrow→ 7(55%) →\rightarrow→ 6(20%) →\rightarrow→ (5%)充电站(100%) →\rightarrow→ 5(70%) →\rightarrow→ 配送中心(35%)。
-电动车3：配送中心(100%) →\rightarrow→ 10(75%) →\rightarrow→ 9(60%) →\rightarrow→ 8(40%)→\rightarrow→ 配送中心(10%)。
-
-
-符号
-给定有向图G=(V,A)\mathcal{G}=(\mathcal{V}, \mathcal{A})G=(V,A)，V=C∪{o,d}∪r\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{r}V=C∪{o,d}∪r，是图中的点集，包括了客户点集C\mathcal{C}C，配送中心点ooo及其复制配送中心点ddd，充电站点rrr；A={(i,j)∣∀i,j∈V,i≠j}\mathcal{A}=\{(i,j)|\forall i,j\in\mathcal{V}, i\neq j\}A={(i,j)∣∀i,j∈V,i=j}, 是图中的边集。客户iii的需求为qiq_iqi​，服务时间为lil_ili​，服务时间窗为[ai,bi][a_i,b_i][ai​,bi​]。弧(i,j)(i,j)(i,j)的行驶时间为TijT_{ij}Tij​,行驶成本为cijc_{ij}cij​。电动车的充电速率ggg是线性的。假设电动车的电量状态为[0[0%,100%][0，且其电量消耗是与行驶距离成正比函数。为了刻画不同电动车到达同一个充电站rrr的剩余电量和充电时间段的不一致，我们将充电站rrr复制多个(每一个的坐标相同，仅编号不一样)，使用R\mathcal{R}R来表示所有复制点的点集。将图G\mathcal{G}G的点集更新为V=C∪{o,d}∪R\mathcal{V}=\mathcal{C}\cup\{o,d\}\cup{\mathcal{R}}V=C∪{o,d}∪R。需要注意的是复制的数量不宜过多，否则会出现对称性，即访问不同得到复制点但是对应的解实际上是一样的。理论上最差是每辆车访问一个客户后就必须充电，需要复制∣C∣∣K∣|\mathcal{C}||\mathcal{K}|∣C∣∣K∣个充电站。
-问题建模
-
-决策变量：
-
-xijx_{ij}xij​表示从客户点iii到客户点jjj的行驶路径，取值为0或1，0表示不选择该路径，1表示选择该路径。
-tit_iti​表示客户点iii的访问时间。
-uiu_iui​表示到达客户点iii的剩余容量。
-
-
-目标函数：最小化总行驶成本。
-min⁡∑i,j∈Vcijxij\min \sum_{i,j\in\mathcal{V}}c_{ij}x_{ij}min∑i,j∈V​cij​xij​
-约束条件：
-
-每个客户都必须被一辆车访问一次。
-∑j∈Vxij=1,∀i∈C\sum_{j\in\mathcal{V}}x_{ij}=1,\forall i\in\mathcal{C}∑j∈V​xij​=1,∀i∈C
-车辆必须重配送中心出发，最后返回配送中心。
-∑j∈Vxoj−∑j∈Vxid=0\sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0∑j∈V​xoj​−∑j∈V​xid​=0
-对于每个客户点离开的车数量必须等于进入的该客户点数量， 即车辆的流平衡约束。
-∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪R\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,\forall j\in\mathcal{C}\cup\mathcal{R}∑i∈V​xij​−∑j∈V​xji​=0,∀j∈C∪R
-车辆的容量约束。
-ui+qi−uj≤M(1−xij),∀(i,j)∈Au_i+q_i-u_j\leq M(1-x_{ij}), \forall (i,j)\in\mathcal{A}ui​+qi​−uj​≤M(1−xij​),∀(i,j)∈A
-车辆的行驶时间约束。
-
-不存在充电过程的弧：
-包括配送中心与客户点之间的弧，以充电站复制点为起点的弧。
-ti+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vt_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V}ti​+li​+Tij​−tj​≤M(1−xij​),∀i∈C∪o,j∈V
-存在充电过程的弧：
-当电动车访问以充电站为起点的弧，表明电动车进行了充电。为了对电动车的电量状态进行建模，需要记录电动车到达客户点的SOC的决策变量。引入非负变量yiy_iyi​表示电动车到达点iii时已消耗的电量，且yi∈[0,1]y_i\in[0,1]yi​∈[0,1], 那么到达客户点的剩余电量为1−yi1-y_i1−yi​。电动车的充电时间约束为：
-ti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dt_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), \forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}ti​+gyi​+Tij​−tj​≤M(1−xij​),∀i∈R,j∈C∪d,
-其中gyigy_igyi​表示充满电的时间。
-
-
-行驶过程中的电量约束：用参数EijE_{ij}Eij​表示电动车在弧(i,j)(i,j)(i,j)行驶过程中的电量消耗。
-
-
-以配送中心或者充电站点为起点的弧(i,j),i∈{o}∪R,j∈C∪{d}(i,j), i \in \{o\}\cup\mathcal{R}, j \in \mathcal{C}\cup\{d\}(i,j),i∈{o}∪R,j∈C∪{d}, 电动车到达点jjj时已消耗的电量为EijE_{ij}Eij​,那么yj=yi+Eij=0+Eij=Eijy_j = y_i + E_{ij} = 0 + E_{ij} = E_{ij}yj​=yi​+Eij​=0+Eij​=Eij​。
-Eij−yj≤M(1−xij),∀i∈{o}∪R,j∈VE_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}Eij​−yj​≤M(1−xij​),∀i∈{o}∪R,j∈V
-
-
-以客户点为起点的弧(i,j),i∈C,j∈V(i,j), i \in \mathcal{C}, j \in \mathcal{V}(i,j),i∈C,j∈V, xij=1x_{ij}=1xij​=1, 那么yj=yi+Eijy_j = y_i + E_{ij}yj​=yi​+Eij​。
-yi+Eij−yj≤M(1−xij),∀i∈C,j∈Vy_i + E_{ij} - y_j \leq M(1-x_{ij}), \forall i \in \mathcal{C}, j \in \mathcal{V}yi​+Eij​−yj​≤M(1−xij​),∀i∈C,j∈V
-
-
-
-
-
-
-完整的EVRPTW数学模型如下：
-min⁡∑i,j∈Vcijxijs.t.∑j∈Vxij=1,∀i∈C∑j∈Vxoj−∑j∈Vxid=0∑i∈Vxij−∑j∈Vxji=0,∀j∈C∪Rui+qi−uj≤M(1−xij),∀(i,j)∈Ati+li+Tij−tj≤M(1−xij),∀i∈C∪o,j∈Vti+gyi+Tij−tj≤M(1−xij),∀i∈R,j∈C∪dEij−yj≤M(1−xij),∀i∈{o}∪R,j∈Vyi+Eij−yj≤M(1−xij),∀i∈C,j∈Vai≤ti≤bi,∀i∈C0≤ui≤Q,∀i∈V0≤yi≤1,∀i∈Vxij∈{0,1},∀(i,j)∈A
-\begin{aligned}
-\min &amp;\sum_{i,j\in\mathcal{V}}c_{ij}x_{ij} \\
-\text{s.t.} &amp;\sum_{j\in\mathcal{V}}x_{ij}=1,&amp;\forall i\in\mathcal{C}\\
-&amp; \sum_{j\in\mathcal{V}}x_{oj} - \sum_{j\in\mathcal{V}}x_{id}=0\\
-&amp;\sum_{i\in\mathcal{V}}x_{ij} - \sum_{j\in\mathcal{V}}x_{ji}=0,&amp;\forall j\in\mathcal{C}\cup\mathcal{R}\\
-&amp; u_i+q_i-u_j\leq M(1-x_{ij}), &amp;\forall (i,j)\in\mathcal{A}\\
-&amp;t_i + l_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{C}\cup{o}, j\in\mathcal{V} \\
-&amp;t_i + gy_i + T_{ij} - t_j \leq  M(1-x_{ij}), &amp;\forall i\in\mathcal{R}, j\in\mathcal{C}\cup{d}\\
-&amp;E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \{o\}\cup\mathcal{R}, j \in \mathcal{V}\\
-&amp;y_i + E_{ij} - y_j \leq M(1-x_{ij}), &amp;\forall i \in \mathcal{C}, j \in \mathcal{V}\\
-&amp;a_i \leq t_i \leq b_i, &amp;\forall i \in \mathcal{C}\\
-&amp;0 \leq u_i \leq Q, &amp;\forall i \in \mathcal{V}\\
-&amp;0\leq y_i \leq 1, &amp;\forall i \in \mathcal{V}\\
-&amp;x_{ij} \in \{0,1\}, &amp;\forall (i,j)\in\mathcal{A}
-\end{aligned}
-mins.t.​i,j∈V∑​cij​xij​j∈V∑​xij​=1,j∈V∑​xoj​−j∈V∑​xid​=0i∈V∑​xij​−j∈V∑​xji​=0,ui​+qi​−uj​≤M(1−xij​),ti​+li​+Tij​−tj​≤M(1−xij​),ti​+gyi​+Tij​−tj​≤M(1−xij​),Eij​−yj​≤M(1−xij​),yi​+Eij​−yj​≤M(1−xij​),ai​≤ti​≤bi​,0≤ui​≤Q,0≤yi​≤1,xij​∈{0,1},​∀i∈C∀j∈C∪R∀(i,j)∈A∀i∈C∪o,j∈V∀i∈R,j∈C∪d∀i∈{o}∪R,j∈V∀i∈C,j∈V∀i∈C∀i∈V∀i∈V∀(i,j)∈A​
-]]></content>
-      <categories>
-        <category>运筹优化</category>
-      </categories>
-      <tags>
-        <tag>整数规划</tag>
-        <tag>VRP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Wasserstein距离简介</title>
-    <url>/2026/07/08/wasserstein-distance-intro/</url>
-    <content><![CDATA[Wasserstein 距离是一种衡量两个概率分布之间差异的度量，在最优传输理论中有着核心地位。相比于 KL 散度等传统度量，Wasserstein 距离能更好地反映分布之间的几何结构差异，因此在机器学习、计算机视觉等领域得到了广泛应用。
-
-直观理解：推土机距离
-Wasserstein 距离最经典的直观解释是推土机距离（Earth Mover’s Distance, EMD）：
-
-把一堆土从当前位置搬运到目标位置，最小化总搬运工作量。
-
-假设有两堆形状不同的土堆 P\mathbb{P}P 和 Q\mathbb{Q}Q：
-
-P\mathbb{P}P：当前位置的土堆（源分布）
-Q\mathbb{Q}Q：目标形状的土堆（目标分布）
-c(x,y)c(x, y)c(x,y)：从位置 xxx 搬运一单位土到位置 yyy 的代价，通常取欧氏距离的 ppp 次方 ∥x−y∥p\|x - y\|^p∥x−y∥p
-在所有可能的搬运方案（Transport Plans）中，找到能将 P\mathbb{P}P 完全重塑为 Q\mathbb{Q}Q 且总做功最小的方案
-
-Wasserstein 距离 = 将所有土从 P\mathbb{P}P 的形状搬运成 Q\mathbb{Q}Q 的形状所需的最小总代价。
-
-图1：推土机距离示意图——将左侧分布 P\mathbb{P}P 的土搬运成右侧分布 Q\mathbb{Q}Q 的形状
-Kantorovich 问题：从直觉到数学
-从直觉到公式
-搬运土堆比喻很直观——把 P\mathbb{P}P 形状的土堆搬成 Q\mathbb{Q}Q 的形状，最小化总搬运代价。现在需要把这个直觉写成数学。
-要精确描述一个运输方案，只需要回答三个问题：
-
-谁搬到谁——xxx 处的土有多少运到了 yyy？
-搬多少——从 xxx 运出的总量 = P\mathbb{P}P 在 xxx 的质量；运入 yyy 的总量 = Q\mathbb{Q}Q 在 yyy 的质量
-花多少钱——每单位土从 xxx 到 yyy 的代价是 c(x,y)c(x,y)c(x,y)，总代价 = 每段路程的运量 × 单价，求和
-
-Kantorovich（1942）用联合分布 γ(x,y)\gamma(x, y)γ(x,y) 统一回答了这三个问题：
-
-γ(x,y)\gamma(x, y)γ(x,y)：从 xxx 运到 yyy 的土量（回答&quot;谁搬到谁&quot;）
-γ\gammaγ 作为运输计划的概率密度（或质量函数），称为 运输计划（transport plan / coupling）
-
-Kantorovich 问题
-Wc(P,Q)=inf⁡γ∈Γ(P,Q)∫X×Yc(x,y) dγ(x,y)\mathcal{W}_c(P, Q) = \inf_{\gamma \in \Gamma(\mathbb{P}, \mathbb{Q})} \int_{\mathcal{X} \times \mathcal{Y}} c(x, y) \, d\gamma(x, y)Wc​(P,Q)=γ∈Γ(P,Q)inf​∫X×Y​c(x,y)dγ(x,y)其中：
-Γ(P,Q)={γ∈P(X×Y):Proj1♯γ=PProj2♯γ=Q}\Gamma(\mathbb{P}, \mathbb{Q}) = \left\{ \gamma \in \mathcal{P}(\mathcal{X} \times \mathcal{Y}) : \begin{array}{l} \text{Proj}_{1\sharp}\gamma = \mathbb{P} \\ \text{Proj}_{2\sharp}\gamma = \mathbb{Q} \end{array} \right\}Γ(P,Q)={γ∈P(X×Y):Proj1♯​γ=PProj2♯​γ=Q​}Γ(P,Q)\Gamma(\mathbb{P}, \mathbb{Q})Γ(P,Q) 是所有边际分别为 P\mathbb{P}P 和 Q\mathbb{Q}Q 的联合分布的集合。
-为什么这个形式是好的？
-
-凸优化问题：目标函数关于 γ\gammaγ 是线性的，约束是凸的 → 一个线性规划（在无穷维空间上）
-解总是存在：不要求一个 xxx 只能映射到一个 yyy，允许分拆运输（mass splitting），总能构造出满足边际约束的 γ\gammaγ
-对偶性：凸结构使得强对偶成立，因此可以推导出对偶形式
-
-离散情形下的直观理解
-在离散情形下，P\mathbb{P}P 和 Q\mathbb{Q}Q 是两个离散分布：
-P=∑i=1mpiδxi,Q=∑j=1nqjδyj\mathbb{P} = \sum_{i=1}^{m} p_i \delta_{x_i}, \quad \mathbb{Q} = \sum_{j=1}^{n} q_j \delta_{y_j}P=i=1∑m​pi​δxi​​,Q=j=1∑n​qj​δyj​​运输计划 γ\gammaγ 变成一个 m×nm \times nm×n 的矩阵：
-γ=(γ11γ12⋯γ1nγ21γ22⋯γ2n⋮⋮⋱⋮γm1γm2⋯γmn)\gamma = \begin{pmatrix}
-\gamma_{11} &amp; \gamma_{12} &amp; \cdots &amp; \gamma_{1n} \\
-\gamma_{21} &amp; \gamma_{22} &amp; \cdots &amp; \gamma_{2n} \\
-\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
-\gamma_{m1} &amp; \gamma_{m2} &amp; \cdots &amp; \gamma_{mn}
-\end{pmatrix}γ=​γ11​γ21​⋮γm1​​γ12​γ22​⋮γm2​​⋯⋯⋱⋯​γ1n​γ2n​⋮γmn​​​约束条件：
-∑jγij=pi(行和=P的质量),∑iγij=qj(列和=Q的质量)\sum_{j} \gamma_{ij} = p_i \quad (\text{行和} = \mathbb{P} \text{的质量}), \qquad \sum_{i} \gamma_{ij} = q_j \quad (\text{列和} = \mathbb{Q} \text{的质量})j∑​γij​=pi​(行和=P的质量),i∑​γij​=qj​(列和=Q的质量)这正是一个标准的运输线性规划（transportation LP）。
-Kantorovich 问题变为：
-min⁡γ≥0∑i=1m∑j=1nc(xi,yj)⋅γij,s.t. γ1=p,  γ⊤1=q\min_{\gamma \ge 0} \sum_{i=1}^{m} \sum_{j=1}^{n} c(x_i, y_j) \cdot \gamma_{ij}, \quad \text{s.t. } \gamma\mathbf{1} = p,\; \gamma^\top\mathbf{1} = qγ≥0min​i=1∑m​j=1∑n​c(xi​,yj​)⋅γij​,s.t. γ1=p,γ⊤1=q]]></content>
-      <categories>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>Wasserstein距离</tag>
-        <tag>最优传输</tag>
-        <tag>概率分布</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>设施选址问题及其变种</title>
     <url>/2026/08/03/facility-location-problems/</url>
     <content><![CDATA[设施选址问题（Facility Location Problem, FLP）是运筹学中的一类经典优化问题：从若干候选位置中选择设施（如仓库、工厂、基站、数据中心、医院等）的最佳位置，使其服务需求的总成本最小，同时满足覆盖、容量等约束。它是整数规划的典型应用，广泛存在于物流、供应链、公共服务、通信网络等领域。
@@ -2605,6 +2764,70 @@ min⁡∑j∈Jfjyj+∑i∈I∑j∈Jcijxij\min \sum_{j \in J} f_j y_j + \sum_{i \
         <tag>覆盖问题</tag>
         <tag>p-中位问题</tag>
         <tag>p-中心问题</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Wasserstein距离简介</title>
+    <url>/2026/07/08/wasserstein-distance-intro/</url>
+    <content><![CDATA[Wasserstein 距离是一种衡量两个概率分布之间差异的度量，在最优传输理论中有着核心地位。相比于 KL 散度等传统度量，Wasserstein 距离能更好地反映分布之间的几何结构差异，因此在机器学习、计算机视觉等领域得到了广泛应用。
+
+直观理解：推土机距离
+Wasserstein 距离最经典的直观解释是推土机距离（Earth Mover’s Distance, EMD）：
+
+把一堆土从当前位置搬运到目标位置，最小化总搬运工作量。
+
+假设有两堆形状不同的土堆 P\mathbb{P}P 和 Q\mathbb{Q}Q：
+
+P\mathbb{P}P：当前位置的土堆（源分布）
+Q\mathbb{Q}Q：目标形状的土堆（目标分布）
+c(x,y)c(x, y)c(x,y)：从位置 xxx 搬运一单位土到位置 yyy 的代价，通常取欧氏距离的 ppp 次方 ∥x−y∥p\|x - y\|^p∥x−y∥p
+在所有可能的搬运方案（Transport Plans）中，找到能将 P\mathbb{P}P 完全重塑为 Q\mathbb{Q}Q 且总做功最小的方案
+
+Wasserstein 距离 = 将所有土从 P\mathbb{P}P 的形状搬运成 Q\mathbb{Q}Q 的形状所需的最小总代价。
+
+图1：推土机距离示意图——将左侧分布 P\mathbb{P}P 的土搬运成右侧分布 Q\mathbb{Q}Q 的形状
+Kantorovich 问题：从直觉到数学
+从直觉到公式
+搬运土堆比喻很直观——把 P\mathbb{P}P 形状的土堆搬成 Q\mathbb{Q}Q 的形状，最小化总搬运代价。现在需要把这个直觉写成数学。
+要精确描述一个运输方案，只需要回答三个问题：
+
+谁搬到谁——xxx 处的土有多少运到了 yyy？
+搬多少——从 xxx 运出的总量 = P\mathbb{P}P 在 xxx 的质量；运入 yyy 的总量 = Q\mathbb{Q}Q 在 yyy 的质量
+花多少钱——每单位土从 xxx 到 yyy 的代价是 c(x,y)c(x,y)c(x,y)，总代价 = 每段路程的运量 × 单价，求和
+
+Kantorovich（1942）用联合分布 γ(x,y)\gamma(x, y)γ(x,y) 统一回答了这三个问题：
+
+γ(x,y)\gamma(x, y)γ(x,y)：从 xxx 运到 yyy 的土量（回答&quot;谁搬到谁&quot;）
+γ\gammaγ 作为运输计划的概率密度（或质量函数），称为 运输计划（transport plan / coupling）
+
+Kantorovich 问题
+Wc(P,Q)=inf⁡γ∈Γ(P,Q)∫X×Yc(x,y) dγ(x,y)\mathcal{W}_c(P, Q) = \inf_{\gamma \in \Gamma(\mathbb{P}, \mathbb{Q})} \int_{\mathcal{X} \times \mathcal{Y}} c(x, y) \, d\gamma(x, y)Wc​(P,Q)=γ∈Γ(P,Q)inf​∫X×Y​c(x,y)dγ(x,y)其中：
+Γ(P,Q)={γ∈P(X×Y):Proj1♯γ=PProj2♯γ=Q}\Gamma(\mathbb{P}, \mathbb{Q}) = \left\{ \gamma \in \mathcal{P}(\mathcal{X} \times \mathcal{Y}) : \begin{array}{l} \text{Proj}_{1\sharp}\gamma = \mathbb{P} \\ \text{Proj}_{2\sharp}\gamma = \mathbb{Q} \end{array} \right\}Γ(P,Q)={γ∈P(X×Y):Proj1♯​γ=PProj2♯​γ=Q​}Γ(P,Q)\Gamma(\mathbb{P}, \mathbb{Q})Γ(P,Q) 是所有边际分别为 P\mathbb{P}P 和 Q\mathbb{Q}Q 的联合分布的集合。
+为什么这个形式是好的？
+
+凸优化问题：目标函数关于 γ\gammaγ 是线性的，约束是凸的 → 一个线性规划（在无穷维空间上）
+解总是存在：不要求一个 xxx 只能映射到一个 yyy，允许分拆运输（mass splitting），总能构造出满足边际约束的 γ\gammaγ
+对偶性：凸结构使得强对偶成立，因此可以推导出对偶形式
+
+离散情形下的直观理解
+在离散情形下，P\mathbb{P}P 和 Q\mathbb{Q}Q 是两个离散分布：
+P=∑i=1mpiδxi,Q=∑j=1nqjδyj\mathbb{P} = \sum_{i=1}^{m} p_i \delta_{x_i}, \quad \mathbb{Q} = \sum_{j=1}^{n} q_j \delta_{y_j}P=i=1∑m​pi​δxi​​,Q=j=1∑n​qj​δyj​​运输计划 γ\gammaγ 变成一个 m×nm \times nm×n 的矩阵：
+γ=(γ11γ12⋯γ1nγ21γ22⋯γ2n⋮⋮⋱⋮γm1γm2⋯γmn)\gamma = \begin{pmatrix}
+\gamma_{11} &amp; \gamma_{12} &amp; \cdots &amp; \gamma_{1n} \\
+\gamma_{21} &amp; \gamma_{22} &amp; \cdots &amp; \gamma_{2n} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+\gamma_{m1} &amp; \gamma_{m2} &amp; \cdots &amp; \gamma_{mn}
+\end{pmatrix}γ=​γ11​γ21​⋮γm1​​γ12​γ22​⋮γm2​​⋯⋯⋱⋯​γ1n​γ2n​⋮γmn​​​约束条件：
+∑jγij=pi(行和=P的质量),∑iγij=qj(列和=Q的质量)\sum_{j} \gamma_{ij} = p_i \quad (\text{行和} = \mathbb{P} \text{的质量}), \qquad \sum_{i} \gamma_{ij} = q_j \quad (\text{列和} = \mathbb{Q} \text{的质量})j∑​γij​=pi​(行和=P的质量),i∑​γij​=qj​(列和=Q的质量)这正是一个标准的运输线性规划（transportation LP）。
+Kantorovich 问题变为：
+min⁡γ≥0∑i=1m∑j=1nc(xi,yj)⋅γij,s.t. γ1=p,  γ⊤1=q\min_{\gamma \ge 0} \sum_{i=1}^{m} \sum_{j=1}^{n} c(x_i, y_j) \cdot \gamma_{ij}, \quad \text{s.t. } \gamma\mathbf{1} = p,\; \gamma^\top\mathbf{1} = qγ≥0min​i=1∑m​j=1∑n​c(xi​,yj​)⋅γij​,s.t. γ1=p,γ⊤1=q]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>Wasserstein距离</tag>
+        <tag>最优传输</tag>
+        <tag>概率分布</tag>
       </tags>
   </entry>
 </search>
