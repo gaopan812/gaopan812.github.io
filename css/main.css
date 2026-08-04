@@ -1494,7 +1494,7 @@ pre code {
     transition: all 0.2s ease-in-out;
   }
   .links-of-author a::before {
-    background: #29ffff;
+    background: #95afab;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
@@ -3288,4 +3288,17 @@ table {
 }
 .post-title a:hover {
   color: var(--link-hover-color);
+}
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.8em 0;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+.katex-display > .katex {
+  max-width: 100%;
+}
+.katex {
+  font-size: 1em;
 }
